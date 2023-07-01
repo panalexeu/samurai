@@ -46,6 +46,22 @@ class Level:
 
             sprite_.shift(scroll_x, 0)
 
+    def player_collision(self):
+        for sprite_ in self.sprites:
+            if sprite_.rect.colliderect(self.player.rect):
+                if self.player.direction.x < 0 and self.player.direction.y == 0:
+                    self.player.rect.left = sprite_.rect.right
+                elif self.player.direction.x > 0 and self.player.direction.y == 0:
+                    self.player.rect.right = sprite_.rect.left
+
+    def player_vertical_collision(self):
+        for sprite_ in self.sprites:
+            if sprite_.rect.colliderect(self.player.rect):
+                if self.player.direction.y < 0:
+                    self.player.rect.top = sprite_.rect.bottom
+                elif self.player.direction.y > 0:
+                    self.player.rect.bottom = sprite_.rect.top
+
     def update(self):
         # Level sprites render
         self.sprites.draw(self.surface)
@@ -53,4 +69,6 @@ class Level:
 
         # Player handling and render
         self.player.update()
+        self.player_collision()
+        self.player_vertical_collision()
         self.player_sprite.draw(self.surface)

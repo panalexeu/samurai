@@ -32,7 +32,8 @@ class Player(sprite.Sprite):
             self.direction.y = 0
 
     def apply_gravity(self):
-        self.rect.y += self.gravity
+        self.direction.y = 1
+        self.rect.y += self.direction.y * self.gravity
 
     def update(self):
         self.get_input()
