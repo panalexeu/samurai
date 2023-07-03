@@ -8,13 +8,12 @@ class Player(sprite.Sprite):
         super().__init__(pos, size_x, size_y, color)
 
         self.speed = 1
-        self.gravity = 1
-        self.jump_speed = 8
+        self.jump_speed = 4
 
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
 
     def reset_position(self, pos):
-        self.rect = self.image.get_rect(center=pos)
+        self.rect = self.image.get_rect(topleft=pos)
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -31,14 +30,13 @@ class Player(sprite.Sprite):
         else:
             self.direction.y = 0
 
-    def apply_gravity(self):
-        self.direction.y = 1
-        self.rect.y += self.direction.y * self.gravity
+        # handling input of the player movement
+        self.rect.x += self.direction.x * self.speed
+        self.rect.y += self.direction.y * self.jump_speed
+
+    def apply_player_gravity(self, gravity):
+        self.rect.y += gravity
 
     def update(self):
         self.get_input()
 
-        self.rect.x += self.direction.x * self.speed
-        self.rect.y += self.direction.y * self.jump_speed
-
-        self.apply_gravity()

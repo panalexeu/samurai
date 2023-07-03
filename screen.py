@@ -13,7 +13,7 @@ class MainScreen:
 
     def run(self):
         # debug level init
-        debug_level = level.Level(self.surface, constants.DEBUG_LEVEL)
+        debug_level = level.Level(self.surface, constants.DEBUG_LEVEL, level_gravity=1)
 
         while True:
             self.surface.fill((124, 101, 101))
@@ -24,6 +24,9 @@ class MainScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        quit()
 
             # Scaling surface to screen
             self.display.blit(pygame.transform.scale(self.surface, constants.SCREEN_SIZE), (0, 0))
