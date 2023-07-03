@@ -47,22 +47,26 @@ class Level:
 
             sprite_.shift(scroll_x, 0)
 
-    def player_collisions(self):
+    # Do not edit the methods connected to collisions, I set up them to make good collisions
+    # and built like this they work well (for tiles the size of 8x8 and for the player the size of 8x16)
+    # TODO rework magic numbers in methods so they use actual size of the player
+    def player_vertical_collisions(self):
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                # Handling vertical collisions
                 if self.player.direction.y < 0 and self.player.rect.y > sprite_.rect.y:
                     self.player.rect.top = sprite_.rect.bottom
                 elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
                     self.player.rect.bottom = sprite_.rect.top
 
-    def horizontal_collisions(self):
+    def player_horizontal_collisions(self):
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                # Handling horizontal collisions
-                if self.player.direction.x > 0 and self.player.rect.y + 8 >= sprite_.rect.y:
+                sprite_.image.fill('red')
+                if self.player.direction.x > 0 and sprite_.rect.y in range(self.player.rect.y - 1,
+                                                                           self.player.rect.y + 8):
                     self.player.rect.right = sprite_.rect.left
-                elif self.player.direction.x < 0 and self.player.rect.y + 8 >= sprite_.rect.y:
+                elif self.player.direction.x < 0 and sprite_.rect.y in range(self.player.rect.y - 1,
+                                                                             self.player.rect.y + 8):
                     self.player.rect.left = sprite_.rect.right
 
     def update(self):
@@ -73,6 +77,6 @@ class Level:
         # Player handling and render
         self.player.update()
         self.player.apply_player_gravity(self.level_gravity)
-        self.horizontal_collisions()
-        self.player_collisions()
+        self.player_horizontal_collisions()
+        self.player_vertical_collisions()
         self.player_sprite.draw(self.surface)

@@ -12,9 +12,6 @@ class Player(sprite.Sprite):
 
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
 
-    def reset_position(self, pos):
-        self.rect = self.image.get_rect(topleft=pos)
-
     def get_input(self):
         keys = pygame.key.get_pressed()
 
