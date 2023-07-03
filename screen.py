@@ -24,9 +24,8 @@ class MainScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        quit()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    quit()
 
             # Scaling surface to screen
             self.display.blit(pygame.transform.scale(self.surface, constants.SCREEN_SIZE), (0, 0))

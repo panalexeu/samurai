@@ -1,6 +1,7 @@
 import pygame
 
 import constants
+import debug_console
 import player
 import sprite
 
@@ -20,6 +21,9 @@ class Level:
         self.level_map_init(level_map)
         self.level_gravity = level_gravity
 
+        # Console init
+        self.level_console = debug_console.DebugConsole(self.surface, self.player, self.level_sprites)
+
     def level_map_init(self, level_map):
         for row_index, row in enumerate(level_map):
             for column_index, column in enumerate(row):
@@ -27,7 +31,7 @@ class Level:
                 y = row_index * 8 + 161
 
                 if column == '1':
-                    self.level_sprites.add(sprite.Sprite((x, y), 8, 8, (0, 0, 0)))  # had some problems with that line
+                    self.level_sprites.add(sprite.Sprite(pos=(x, y), size_x=8, size_y=8, color=(0, 0, 0)))  # had some problems with that line
                 elif column == 'P':
                     self.player.reset_position((x, y))
                     self.player_sprite.add(self.player)  # had some problems with that line
@@ -61,7 +65,7 @@ class Level:
     def player_horizontal_collisions(self):
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                sprite_.image.fill('red')
+                sprite_.image.fill('red')  # for debugging
                 if self.player.direction.x > 0 and sprite_.rect.y in range(self.player.rect.y - 1,
                                                                            self.player.rect.y + 8):
                     self.player.rect.right = sprite_.rect.left
@@ -73,6 +77,7 @@ class Level:
         # Level sprites render
         self.level_sprites.draw(self.surface)
         self.level_scroll()
+        self.level_console.update()
 
         # Player handling and render
         self.player.update()
