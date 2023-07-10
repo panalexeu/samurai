@@ -77,7 +77,6 @@ class Level:
         # Level sprites render
         self.level_sprites.draw(self.surface)
         self.level_scroll()
-        self.level_console.update()
 
         # Player handling and render
         self.player.update()
@@ -85,3 +84,6 @@ class Level:
         self.player_horizontal_collisions()
         self.player_vertical_collisions()
         self.player_sprite.draw(self.surface)
+
+        # debug console
+        self.level_console.update()

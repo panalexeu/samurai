@@ -7,10 +7,16 @@ class Player(sprite.Sprite):
     def __init__(self, pos, size_x, size_y, color):
         super().__init__(pos, size_x, size_y, color)
 
+        # vectors
+        self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
+
+        # speeds
         self.speed = 1
         self.jump_speed = 4
 
-        self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
+        # cooldowns
+        self.jump_state = False
+        self.jump_cooldown = 100
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -23,7 +29,9 @@ class Player(sprite.Sprite):
             self.direction.x = 0
 
         if keys[pygame.K_SPACE]:
-            self.direction.y = -1
+            if not self.jump_state:
+                self.direction.y = -1
+                self.jump_state = True
         else:
             self.direction.y = 0
 
@@ -31,9 +39,17 @@ class Player(sprite.Sprite):
         self.rect.x += self.direction.x * self.speed
         self.rect.y += self.direction.y * self.jump_speed
 
+    def cooldowns_handling(self):
+        if self.jump_state:
+            self.jump_cooldown -= 1
+            if self.jump_cooldown == 0:
+                self.jump_state = False
+                self.jump_cooldown = 100
+
     def apply_player_gravity(self, gravity):
         self.rect.y += gravity
 
     def update(self):
         self.get_input()
+        self.cooldowns_handling()
 
