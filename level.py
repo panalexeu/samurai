@@ -14,7 +14,7 @@ class Level:
         self.level_sprites = pygame.sprite.Group()
 
         # Player init
-        self.player = player.Player(pos=(0, 0), size_x=16, size_y=16, color=(225, 225, 225))
+        self.player = player.Player(pos=(0, 0), size_x=11, size_y=11, color=(225, 225, 225))
         self.player_sprite = pygame.sprite.GroupSingle()
 
         # Map init
@@ -27,7 +27,7 @@ class Level:
         for row_index, row in enumerate(level_map):
             for column_index, column in enumerate(row):
                 x = column_index * 8
-                y = row_index * 8 + 161
+                y = row_index * 8
 
                 if column == '1':
                     # noinspection PyTypeChecker

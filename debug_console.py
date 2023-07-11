@@ -59,4 +59,4 @@ class DebugConsole:
         self.player_pos_text.display_text(f'player position x:{self.player.rect.x} y:{self.player.rect.y}')
         self.player_directions.display_text(f'player directions x:{self.player.direction.x} y:{self.player.direction.y}')
         self.player_states.display_text(f'STATES jump state:{self.player.jump_state}')
-        self.jump_cooldown.display_text(f'jump cooldown:{self.player.jump_cooldown} gravity:{self.player.player_gravity}')
+        self.jump_cooldown.display_text(f'jump tick:{self.player.jump_tick} gravity:{self.player.player_gravity}')

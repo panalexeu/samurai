@@ -1,6 +1,6 @@
 # Main screen and game settings
 SCREEN_SIZE = (600, 450)  # 600 : 450 = 4 : 3
-SURFACE_SIZE = (300, 225)  # surface which we scale on the screen
+SURFACE_SIZE = (300 // 2, 225 // 2)  # surface which we scale on the screen
 FRAME_RATE = 60
 
 DEBUG_LEVEL = [

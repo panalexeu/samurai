@@ -1,11 +1,19 @@
 import pygame
 
 import sprite
+import utils
 
 
 class Player(sprite.Sprite):
     def __init__(self, pos, size_x, size_y, color):
         super().__init__(pos, size_x, size_y, color)
+
+        # animations
+        self.frame_index = 0
+        self.animation_speed = 0.15
+        self.animations = self.import_sprites()
+        print(self.animations)
+        self.image = self.animations['idle'][0]
 
         # size
         self.size_x = size_x
@@ -15,7 +23,7 @@ class Player(sprite.Sprite):
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
 
         # speeds
-        self.CONST_PLAYER_SPEED = 2
+        self.CONST_PLAYER_SPEED = 1
         self.player_speed = self.CONST_PLAYER_SPEED
 
         self.CONST_PLAYER_GRAVITY = 3
@@ -28,6 +36,26 @@ class Player(sprite.Sprite):
         self.jump_state = False
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
+
+    @staticmethod
+    def import_sprites():
+        sprites_path = 'game_core/sprites/player/'
+        animations = {'idle': [], 'run': []}
+
+        for animation in animations.keys():
+            full_path = sprites_path + animation + '/'
+            animations[animation] = utils.load_animation(full_path)
+
+        return animations
+
+    def animate(self):
+        animation = self.animations['run']
+
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation) - 1:
+            self.frame_index = 0
+
+        self.image = animation[int(self.frame_index)]
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -63,4 +91,4 @@ class Player(sprite.Sprite):
     def update(self):
         self.get_input()
         self.ticks_handling()
-
+        self.animate()
