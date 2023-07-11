@@ -15,7 +15,7 @@ class Player(sprite.Sprite):
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
 
         # speeds
-        self.CONST_PLAYER_SPEED = 1
+        self.CONST_PLAYER_SPEED = 2
         self.player_speed = self.CONST_PLAYER_SPEED
 
         self.CONST_PLAYER_GRAVITY = 3

@@ -30,9 +30,11 @@ class Level:
                 y = row_index * 8 + 161
 
                 if column == '1':
+                    # noinspection PyTypeChecker
                     self.level_sprites.add(sprite.Sprite(pos=(x, y), size_x=8, size_y=8, color=(0, 0, 0)))  # had some problems with that line
                 elif column == 'P':
                     self.player.reset_position((x, y))
+                    # noinspection PyTypeChecker
                     self.player_sprite.add(self.player)  # had some problems with that line
 
     def level_scroll(self):
@@ -40,10 +42,10 @@ class Level:
             indent = constants.SURFACE_SIZE[0] / 4
             if self.player.rect.x < indent and self.player.direction.x < 0:
                 self.player.player_speed = 0
-                scroll_x = 1
+                scroll_x = self.player.CONST_PLAYER_SPEED
             elif self.player.rect.x > constants.SURFACE_SIZE[0] - indent and self.player.direction.x > 0:
                 self.player.player_speed = 0
-                scroll_x = -1
+                scroll_x = -self.player.CONST_PLAYER_SPEED
             else:
                 scroll_x = 0
                 self.player.player_speed = self.player.CONST_PLAYER_SPEED
