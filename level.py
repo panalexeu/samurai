@@ -14,7 +14,7 @@ class Level:
         self.level_sprites = pygame.sprite.Group()
 
         # Player init
-        self.player = player.Player(pos=(0, 0), size_x=8, size_y=16, color=(225, 225, 225))
+        self.player = player.Player(pos=(0, 0), size_x=16, size_y=16, color=(225, 225, 225))
         self.player_sprite = pygame.sprite.GroupSingle()
 
         # Map init
@@ -39,20 +39,19 @@ class Level:
         for sprite_ in self.level_sprites:
             indent = constants.SURFACE_SIZE[0] / 4
             if self.player.rect.x < indent and self.player.direction.x < 0:
-                self.player.speed = 0
+                self.player.player_speed = 0
                 scroll_x = 1
             elif self.player.rect.x > constants.SURFACE_SIZE[0] - indent and self.player.direction.x > 0:
-                self.player.speed = 0
+                self.player.player_speed = 0
                 scroll_x = -1
             else:
                 scroll_x = 0
-                self.player.speed = 1
+                self.player.player_speed = self.player.CONST_PLAYER_SPEED
 
             sprite_.shift(scroll_x, 0)
 
     # Do not edit the methods connected to collisions, I set up them to make good collisions
     # and built like this they work well (for tiles the size of 8x8 and for the player the size of 8x16)
-    # TODO rework magic numbers in methods so they use actual size of the player
     def player_vertical_collisions(self):
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
@@ -65,11 +64,15 @@ class Level:
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
                 sprite_.image.fill('red')  # for debugging
-                if self.player.direction.x > 0 and sprite_.rect.y in range(self.player.rect.y - 1,
-                                                                           self.player.rect.y + 8):
+                if self.player.direction.x > 0 and sprite_.rect.y in range(
+                        self.player.rect.y - self.player.CONST_PLAYER_GRAVITY,
+                        self.player.rect.y + self.player.size_y // 2
+                ):
                     self.player.rect.right = sprite_.rect.left
-                elif self.player.direction.x < 0 and sprite_.rect.y in range(self.player.rect.y - 1,
-                                                                             self.player.rect.y + 8):
+                elif self.player.direction.x < 0 and sprite_.rect.y in range(
+                        self.player.rect.y - self.player.CONST_PLAYER_GRAVITY,
+                        self.player.rect.y + self.player.size_y // 2
+                ):
                     self.player.rect.left = sprite_.rect.right
 
     def update(self):
