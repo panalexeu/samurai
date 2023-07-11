@@ -10,17 +10,18 @@ class Player(sprite.Sprite):
 
         # animations
         self.frame_index = 0
-        self.animation_speed = 0.15
+        self.animation_speed = 0.1
         self.animations = self.import_sprites()
-        print(self.animations)
-        self.image = self.animations['idle'][0]
+        print(self.animations)  # for debugging
 
         # size
         self.size_x = size_x
         self.size_y = size_y
 
-        # vectors
+        # vectors and player state
+        self.state = 'idle'
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
+        self.facing_right = True
 
         # speeds
         self.CONST_PLAYER_SPEED = 1
@@ -32,7 +33,7 @@ class Player(sprite.Sprite):
         self.CONST_JUMP_SPEED = 6
         self.jump_speed = self.CONST_JUMP_SPEED
 
-        # ticks and states
+        # ticks and action states
         self.jump_state = False
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
@@ -48,22 +49,15 @@ class Player(sprite.Sprite):
 
         return animations
 
-    def animate(self):
-        animation = self.animations['run']
-
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(animation) - 1:
-            self.frame_index = 0
-
-        self.image = animation[int(self.frame_index)]
-
     def get_input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_d]:
             self.direction.x = 1
+            self.facing_right = True
         elif keys[pygame.K_a]:
             self.direction.x = -1
+            self.facing_right = False
         else:
             self.direction.x = 0
 
@@ -78,7 +72,26 @@ class Player(sprite.Sprite):
         self.rect.x += self.direction.x * self.player_speed
         self.rect.y += self.direction.y * self.jump_speed + self.player_gravity
 
-    def ticks_handling(self):
+    def animate(self):
+        animation = self.animations[self.state]
+
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index = 0
+
+        image = animation[int(self.frame_index)]
+        if self.facing_right:
+            self.image = image
+        else:
+            self.image = pygame.transform.flip(image, flip_x=True, flip_y=False)
+
+    def states_update(self):
+        if self.direction.x != 0:
+            self.state = 'run'
+        else:
+            self.state = 'idle'
+
+    def ticks_update(self):
         # Jumping handling
         if self.jump_state:
             self.jump_tick -= 1
@@ -90,5 +103,6 @@ class Player(sprite.Sprite):
 
     def update(self):
         self.get_input()
-        self.ticks_handling()
         self.animate()
+        self.states_update()
+        self.ticks_update()
