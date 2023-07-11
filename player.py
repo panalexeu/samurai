@@ -12,11 +12,12 @@ class Player(sprite.Sprite):
 
         # speeds
         self.speed = 1
+        self.player_gravity = 1
         self.jump_speed = 4
 
         # cooldowns
         self.jump_state = False
-        self.jump_cooldown = 100
+        self.jump_cooldown = 30
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -37,15 +38,17 @@ class Player(sprite.Sprite):
 
         # handling input of the player movement
         self.rect.x += self.direction.x * self.speed
-        self.rect.y += self.direction.y * self.jump_speed
+        self.rect.y += self.direction.y * self.jump_speed + self.player_gravity
 
     def cooldowns_handling(self):
+        # Jumping handling
         if self.jump_state:
             self.jump_cooldown -= 1
             if self.jump_cooldown == 0:
                 self.jump_state = False
-                self.jump_cooldown = 100
-
+                self.jump_cooldown = 30
+            elif self.jump_cooldown == 15:
+                self.direction.y = 0
     def apply_player_gravity(self, gravity):
         self.rect.y += gravity
 

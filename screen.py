@@ -13,7 +13,7 @@ class MainScreen:
 
     def run(self):
         # debug level init
-        debug_level = level.Level(self.surface, constants.DEBUG_LEVEL, level_gravity=1)
+        debug_level = level.Level(self.surface, constants.DEBUG_LEVEL)
 
         while True:
             self.surface.fill((124, 101, 101))

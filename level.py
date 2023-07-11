@@ -7,7 +7,7 @@ import sprite
 
 
 class Level:
-    def __init__(self, surface, level_map, level_gravity):
+    def __init__(self, surface, level_map):
         self.surface = surface
 
         # Level sprites init
@@ -19,7 +19,6 @@ class Level:
 
         # Map init
         self.level_map_init(level_map)
-        self.level_gravity = level_gravity
 
         # Console init
         self.level_console = debug_console.DebugConsole(self.surface, self.player, self.level_sprites)
@@ -80,7 +79,6 @@ class Level:
 
         # Player handling and render
         self.player.update()
-        self.player.apply_player_gravity(self.level_gravity)
         self.player_horizontal_collisions()
         self.player_vertical_collisions()
         self.player_sprite.draw(self.surface)
