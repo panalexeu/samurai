@@ -24,10 +24,10 @@ class Player(sprite.Sprite):
         self.CONST_JUMP_SPEED = 6
         self.jump_speed = self.CONST_JUMP_SPEED
 
-        # cooldowns and states
+        # ticks and states
         self.jump_state = False
-        self.CONST_JUMP_COOLDOWN = 40
-        self.jump_cooldown = self.CONST_JUMP_COOLDOWN
+        self.CONST_JUMP_TICK = 40
+        self.jump_tick = self.CONST_JUMP_TICK
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -50,18 +50,17 @@ class Player(sprite.Sprite):
         self.rect.x += self.direction.x * self.player_speed
         self.rect.y += self.direction.y * self.jump_speed + self.player_gravity
 
-    def cooldowns_handling(self):
+    def ticks_handling(self):
         # Jumping handling
         if self.jump_state:
-            self.jump_cooldown -= 1
-            if self.jump_cooldown == self.CONST_JUMP_COOLDOWN - 15:
+            self.jump_tick -= 1
+            if self.jump_tick == self.CONST_JUMP_TICK - 15:
                 self.direction.y = 0
-            elif self.jump_cooldown == 0:
+            elif self.jump_tick == 0:
                 self.jump_state = False
-                self.jump_cooldown = self.CONST_JUMP_COOLDOWN
-                self.player_gravity = self.CONST_PLAYER_GRAVITY
+                self.jump_tick = self.CONST_JUMP_TICK
 
     def update(self):
         self.get_input()
-        self.cooldowns_handling()
+        self.ticks_handling()
 
