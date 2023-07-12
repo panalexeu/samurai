@@ -8,18 +8,17 @@ class Player(sprite.Sprite):
     def __init__(self, pos, size_x, size_y, color):
         super().__init__(pos, size_x, size_y, color)
 
-        # animations
+        # animations and animation state
         self.frame_index = 0
         self.animation_speed = 0.1
+        self.state = 'idle'
         self.animations = self.import_sprites()
-        print(self.animations)  # for debugging
 
         # sizes and hitbox
         self.size_x = size_x
         self.size_y = size_y
 
-        # vectors and player state
-        self.state = 'idle'
+        # vectors
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
         self.facing_right = True
 
@@ -38,10 +37,14 @@ class Player(sprite.Sprite):
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
 
+        self.stun_state = False
+        self.CONST_STUN_TICK = 100
+        self.stun_tick = self.CONST_STUN_TICK
+
     @staticmethod
     def import_sprites():
         sprites_path = 'game_core/sprites/player/'
-        animations = {'idle': [], 'run': [], 'jump': []}
+        animations = {'idle': [], 'run': [], 'jump': [], 'stun': []}
 
         for animation in animations.keys():
             full_path = sprites_path + animation + '/'
@@ -68,7 +71,7 @@ class Player(sprite.Sprite):
         else:
             self.direction.y = 0
 
-        # handling input of the player movement and gravity
+    def player_movement(self):
         self.rect.x += self.direction.x * self.player_speed
         self.rect.y += self.direction.y * self.jump_speed + self.player_gravity
 
@@ -103,8 +106,17 @@ class Player(sprite.Sprite):
                 self.jump_state = False
                 self.jump_tick = self.CONST_JUMP_TICK
 
+        if self.stun_state:
+            self.state = 'stun'
+            self.stun_tick -= 1
+            if self.stun_tick == 0:
+                self.stun_state = False
+                self.stun_tick = self.CONST_STUN_TICK
+
     def update(self):
-        self.get_input()
+        if not self.stun_state:
+            self.get_input()
         self.animate()
+        self.player_movement()
         self.states_update()
         self.ticks_update()

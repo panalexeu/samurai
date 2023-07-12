@@ -74,7 +74,12 @@ class Level:
             if sprite_.rect.colliderect(self.player.rect):
                 if self.player.direction.y < 0 and self.player.rect.y > sprite_.rect.y:
                     self.player.rect.top = sprite_.rect.bottom
+
+                    # Handling stun
+                    self.player.stun_state = True
                     self.player.direction.y = 0
+                    self.player.direction.x = 0
+
                 elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
                     self.player.rect.bottom = sprite_.rect.top
 
