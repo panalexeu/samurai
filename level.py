@@ -39,18 +39,35 @@ class Level:
 
     def level_scroll(self):
         for sprite_ in self.level_sprites:
-            indent = constants.SURFACE_SIZE[0] / 4
-            if self.player.rect.x < indent and self.player.direction.x < 0:
+            # x coordinate scrolling
+            indent_x = constants.SURFACE_SIZE[0] / 4
+            if self.player.rect.x < indent_x and self.player.direction.x < 0:
                 self.player.player_speed = 0
                 scroll_x = self.player.CONST_PLAYER_SPEED
-            elif self.player.rect.x > constants.SURFACE_SIZE[0] - indent and self.player.direction.x > 0:
+            elif self.player.rect.x > constants.SURFACE_SIZE[0] - indent_x and self.player.direction.x > 0:
                 self.player.player_speed = 0
                 scroll_x = -self.player.CONST_PLAYER_SPEED
             else:
                 scroll_x = 0
                 self.player.player_speed = self.player.CONST_PLAYER_SPEED
 
-            sprite_.shift(scroll_x, 0)
+            # y coordinate scrolling
+            indent_y = constants.SURFACE_SIZE[1] / 3
+            if self.player.rect.y < indent_y and self.player.direction.y < 0:
+                self.player.jump_speed = 0
+                self.player.player_gravity = 0
+                scroll_y = self.player.CONST_JUMP_SPEED - self.player.CONST_PLAYER_GRAVITY
+            elif self.player.rect.y > constants.SURFACE_SIZE[1] - indent_y and self.player.direction.y >= 0:
+                self.player.jump_speed = 0
+                self.player.player_gravity = 0
+                scroll_y = -self.player.CONST_PLAYER_GRAVITY
+            else:
+                scroll_y = 0
+                self.player.player_gravity = self.player.CONST_PLAYER_GRAVITY
+                self.player.jump_speed = self.player.CONST_JUMP_SPEED
+
+            # applying scrolling
+            sprite_.shift(scroll_x, scroll_y)
 
     # Do not edit the methods connected to collisions, I set up them to make good collisions
     # and built like this they work well (for tiles the size of 8x8 and for the player the size of 8x16)
@@ -73,7 +90,7 @@ class Level:
                     self.player.rect.right = sprite_.rect.left
                 elif self.player.direction.x < 0 and sprite_.rect.y in range(
                         self.player.rect.y - self.player.CONST_PLAYER_GRAVITY,
-                        self.player.rect.y + self.player.size_y // 2
+                        self.player.rect.y + self.player.size_x // 2
                 ):
                     self.player.rect.left = sprite_.rect.right
 

@@ -10,7 +10,7 @@ class DebugConsole:
 
         self.sprites_text = text.Text(
             font='Minecraft',
-            size=16,
+            size=8,
             color=(240, 240, 240),
             pos=(0, 0),
             surface=surface
@@ -18,33 +18,33 @@ class DebugConsole:
 
         self.player_pos_text = text.Text(
             font='Minecraft',
-            size=16,
+            size=8,
             color=(240, 240, 240),
-            pos=(0, 16),
+            pos=(0, 8),
             surface=surface
         )
 
         self.player_directions = text.Text(
             font='Minecraft',
-            size=16,
+            size=8,
             color=(240, 240, 240),
-            pos=(0, 32),
+            pos=(0, 16),
             surface=surface
         )
 
         self.player_states = text.Text(
             font='Minecraft',
-            size=16,
+            size=8,
             color=(240, 240, 240),
-            pos=(0, 48),
+            pos=(0, 24),
             surface=surface
         )
 
         self.jump_cooldown = text.Text(
             font='Minecraft',
-            size=16,
+            size=8,
             color=(240, 240, 240),
-            pos=(0, 64),
+            pos=(0, 32),
             surface=surface
         )
 

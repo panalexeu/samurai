@@ -14,7 +14,7 @@ class Player(sprite.Sprite):
         self.animations = self.import_sprites()
         print(self.animations)  # for debugging
 
-        # size
+        # sizes and hitbox
         self.size_x = size_x
         self.size_y = size_y
 
@@ -41,7 +41,7 @@ class Player(sprite.Sprite):
     @staticmethod
     def import_sprites():
         sprites_path = 'game_core/sprites/player/'
-        animations = {'idle': [], 'run': []}
+        animations = {'idle': [], 'run': [], 'jump': []}
 
         for animation in animations.keys():
             full_path = sprites_path + animation + '/'
@@ -86,8 +86,10 @@ class Player(sprite.Sprite):
             self.image = pygame.transform.flip(image, flip_x=True, flip_y=False)
 
     def states_update(self):
-        if self.direction.x != 0:
+        if self.direction.x != 0 and self.direction.y == 0:
             self.state = 'run'
+        elif self.direction.y < 0:
+            self.state = 'jump'
         else:
             self.state = 'idle'
 
