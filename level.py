@@ -14,7 +14,7 @@ class Level:
         self.level_sprites = pygame.sprite.Group()
 
         # Player init
-        self.player = player.Player(pos=(0, 0), size_x=11, size_y=11, color=(225, 225, 225))
+        self.player = player.Player(pos=(0, 0), size_x=11, size_y=11, image_path='game_core/sprites/player/idle/samurai_idle1.png')
         self.player_sprite = pygame.sprite.GroupSingle()
 
         # Map init
@@ -31,7 +31,7 @@ class Level:
 
                 if column == '1':
                     # noinspection PyTypeChecker
-                    self.level_sprites.add(sprite.Sprite(pos=(x, y), size_x=8, size_y=8, color=(0, 0, 0)))  # had some problems with that line
+                    self.level_sprites.add(sprite.Sprite(pos=(x, y), size_x=8, size_y=8, image_path='game_core/sprites/level_1/brick.png'))  # had some problems with that line
                 elif column == 'P':
                     self.player.reset_position((x, y))
                     # noinspection PyTypeChecker
@@ -86,7 +86,7 @@ class Level:
     def player_horizontal_collisions(self):
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                sprite_.image.fill('red')  # for debugging
+               # sprite_.image.fill('red')  # for debugging
                 if self.player.direction.x > 0 and sprite_.rect.y in range(
                         self.player.rect.y - self.player.CONST_PLAYER_GRAVITY,
                         self.player.rect.y + self.player.size_y // 2

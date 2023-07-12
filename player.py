@@ -5,8 +5,8 @@ import utils
 
 
 class Player(sprite.Sprite):
-    def __init__(self, pos, size_x, size_y, color):
-        super().__init__(pos, size_x, size_y, color)
+    def __init__(self, pos, size_x, size_y, color=None, image_path=None):
+        super().__init__(pos, size_x, size_y, color, image_path)
 
         # animations and animation state
         self.frame_index = 0
