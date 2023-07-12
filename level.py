@@ -69,13 +69,12 @@ class Level:
             # applying scrolling
             sprite_.shift(scroll_x, scroll_y)
 
-    # Do not edit the methods connected to collisions, I set up them to make good collisions
-    # and built like this they work well (for tiles the size of 8x8 and for the player the size of 8x16)
     def player_vertical_collisions(self):
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
                 if self.player.direction.y < 0 and self.player.rect.y > sprite_.rect.y:
                     self.player.rect.top = sprite_.rect.bottom
+                    self.player.direction.y = 0
                 elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
                     self.player.rect.bottom = sprite_.rect.top
 
