@@ -103,6 +103,9 @@ class Level:
         self.level_sprites.draw(self.surface)
         self.level_scroll()
 
+        # DEBUG
+        self.player.collide_box_sprite.draw(self.surface)
+
         # Player handling and render
         self.player.update()
         self.player_horizontal_collisions()

@@ -5,7 +5,7 @@ import utils
 
 
 class Player(sprite.Sprite):
-    def __init__(self, pos, size_x, size_y, color=None, image_path=None):
+    def __init__(self, pos, size_x=None, size_y=None, color=None, image_path=None):
         super().__init__(pos, size_x, size_y, color, image_path)
 
         # animations and animation state
@@ -17,6 +17,8 @@ class Player(sprite.Sprite):
         # sizes and hitbox
         self.size_x = size_x
         self.size_y = size_y
+        self.collide_box = sprite.Sprite(pos, 11, 16, (255, 255, 255))
+        self.collide_box_sprite = pygame.sprite.GroupSingle(self.collide_box)
 
         # vectors
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
@@ -113,10 +115,14 @@ class Player(sprite.Sprite):
                 self.stun_state = False
                 self.stun_tick = self.CONST_STUN_TICK
 
+    def update_hitbox(self):
+        self.collide_box.reset_position(self.rect.bottomleft)
+
     def update(self):
         if not self.stun_state:
             self.get_input()
         self.animate()
+        self.update_hitbox()
         self.player_movement()
         self.states_update()
         self.ticks_update()
