@@ -14,7 +14,7 @@ class Level:
         self.level_sprites = pygame.sprite.Group()
 
         # Player init
-        self.player = player.Player(pos=(0, 0), size_x=11, size_y=11, image_path='game_core/sprites/player/idle/samurai_idle1.png')
+        self.player = player.Player(pos=(0, 0), image_path='game_core/sprites/player/idle/samurai_idle1.png')
         self.player_sprite = pygame.sprite.GroupSingle()
 
         # Map init
@@ -86,15 +86,15 @@ class Level:
     def player_horizontal_collisions(self):
         for sprite_ in self.level_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-               # sprite_.image.fill('red')  # for debugging
+                sprite_.image.fill('red')  # for debugging
                 if self.player.direction.x > 0 and sprite_.rect.y in range(
                         self.player.rect.y - self.player.CONST_PLAYER_GRAVITY,
-                        self.player.rect.y + self.player.size_y // 2
+                        self.player.rect.y + self.player.rect.size[1] // 2
                 ):
                     self.player.rect.right = sprite_.rect.left
                 elif self.player.direction.x < 0 and sprite_.rect.y in range(
                         self.player.rect.y - self.player.CONST_PLAYER_GRAVITY,
-                        self.player.rect.y + self.player.size_x // 2
+                        self.player.rect.y + self.player.rect.size[1] // 2
                 ):
                     self.player.rect.left = sprite_.rect.right
 
@@ -102,9 +102,6 @@ class Level:
         # Level sprites render
         self.level_sprites.draw(self.surface)
         self.level_scroll()
-
-        # DEBUG
-        self.player.collide_box_sprite.draw(self.surface)
 
         # Player handling and render
         self.player.update()

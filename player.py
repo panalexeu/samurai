@@ -14,9 +14,7 @@ class Player(sprite.Sprite):
         self.state = 'idle'
         self.animations = self.import_sprites()
 
-        # sizes and hitbox
-        self.size_x = size_x
-        self.size_y = size_y
+        # hitbox
         self.collide_box = sprite.Sprite(pos, 11, 16, (255, 255, 255))
         self.collide_box_sprite = pygame.sprite.GroupSingle(self.collide_box)
 
@@ -122,7 +120,7 @@ class Player(sprite.Sprite):
         if not self.stun_state:
             self.get_input()
         self.animate()
-        self.update_hitbox()
+        # self.update_hitbox()
         self.player_movement()
         self.states_update()
         self.ticks_update()
