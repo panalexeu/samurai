@@ -1,20 +1,25 @@
 import pygame
 
 import sprite
+import text
 import utils
 
 
 class Player(sprite.Sprite):
-    def __init__(self, pos, size_x=None, size_y=None, color=None, image_path=None):
-        super().__init__(pos, size_x, size_y, color, image_path)
+    def __init__(self, pos, image_path):
+        super().__init__(pos, image_path=image_path)
 
         # animations and animation state
         self.frame_index = 0
         self.animation_speed = 0.1
         self.state = 'idle'
-        self.animations = self.import_sprites()
+        self.animations_states = {'idle': [], 'run': [], 'jump': [], 'stun': []}
+        self.animations = utils.import_sprites(
+            sprites_path='game_core/sprites/player/',
+            animation_states=self.animations_states
+        )
 
-        # hitbox
+        # collide box
         self.collide_box = sprite.Sprite(pos, 11, 16, (255, 255, 255))
         self.collide_box_sprite = pygame.sprite.GroupSingle(self.collide_box)
 
@@ -41,16 +46,14 @@ class Player(sprite.Sprite):
         self.CONST_STUN_TICK = 100
         self.stun_tick = self.CONST_STUN_TICK
 
-    @staticmethod
-    def import_sprites():
-        sprites_path = 'game_core/sprites/player/'
-        animations = {'idle': [], 'run': [], 'jump': [], 'stun': []}
-
-        for animation in animations.keys():
-            full_path = sprites_path + animation + '/'
-            animations[animation] = utils.load_animation(full_path)
-
-        return animations
+        # Items
+        self.coins = 0
+        self.coins_text = text.Text(
+            font='Minecraft',
+            size=14,
+            color=(240, 240, 240),
+            pos=(0, 0),
+        )
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -113,14 +116,13 @@ class Player(sprite.Sprite):
                 self.stun_state = False
                 self.stun_tick = self.CONST_STUN_TICK
 
-    def update_hitbox(self):
-        self.collide_box.reset_position(self.rect.bottomleft)
+    def print_items(self, surface):
+        self.coins_text.display_text(text=f'coins: {self.coins}', surface=surface)
 
     def update(self):
         if not self.stun_state:
             self.get_input()
         self.animate()
-        # self.update_hitbox()
         self.player_movement()
         self.states_update()
         self.ticks_update()
