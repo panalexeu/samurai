@@ -29,6 +29,7 @@ class Level:
         # Player init
         self.player = player.Player()
         self.player_sprite = pygame.sprite.GroupSingle()
+        self.player_sprite.add(self.player)
 
         # Map init
         self.level_map_init(level_map)
@@ -55,9 +56,9 @@ class Level:
                     bonfire_ = bonfire.Bonfire(pos=(x, y))
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
-                elif column == 'P':
-                    # self.player.reset_position((x, y))
-                    self.player_sprite.add(self.player)
+                # elif column == 'P':
+                #     # self.player.reset_position((x, y))
+                #     self.player_sprite.add(self.player)
 
     def level_scroll(self):
         for sprite_ in self.get_all_sprite_groups():  # joins pickups and destroyable with collision sprites
@@ -159,7 +160,7 @@ class Level:
                 sprite_.animate()
 
     def update(self):
-        self.surface.fill((124, 101, 101))
+        self.surface.fill((0, 0, 10))
 
         # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
@@ -169,7 +170,7 @@ class Level:
         self.animate_pickups()
 
         # Level scroll
-        self.level_scroll()
+        # self.level_scroll()
 
         # Level objects collisions handling
         self.pickups_collisions()
