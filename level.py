@@ -127,10 +127,10 @@ class Level:
             if isinstance(collision_obj, coin.Coin):
                 self.player.coins += 1
 
+    # TODO Implement hints system
     def interactive_sprites_collisions(self):
         for sprite_ in self.interactive_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                # Implement hints system
                 # Bonfires handling
                 if isinstance(sprite_, bonfire.Bonfire):
                     if self.player.prev_bonfire:
