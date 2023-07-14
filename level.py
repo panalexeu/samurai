@@ -39,7 +39,7 @@ class Level:
                     self.collision_sprites.add(
                         sprite.Sprite(
                             pos=(x, y),
-                            image_path='game_core/sprites/level_1/brick.png'
+                            image_path='game_core/sprites/level_1/grass.png'
                         )
                     )  # had some problems with that line
                 elif column == 'C':
@@ -132,10 +132,12 @@ class Level:
                 sprite_.animate()
 
     def pickups_collisions(self):
-        collisions = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided
+        collisions = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided (coin, item, posion)
         self.player.coins += len(collisions)
 
     def update(self):
+        self.surface.fill((124, 101, 101))
+
         # Level sprites render
         self.collision_sprites.draw(self.surface)
         self.pickups.draw(self.surface)

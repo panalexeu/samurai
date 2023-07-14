@@ -50,7 +50,7 @@ class Player(sprite.Sprite):
         self.coins = 0
         self.coins_text = text.Text(
             font='Minecraft',
-            size=14,
+            size=8,
             color=(240, 240, 240),
             pos=(0, 0),
         )

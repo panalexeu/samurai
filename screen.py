@@ -16,8 +16,6 @@ class MainScreen:
         debug_level = level.Level(self.surface, constants.DEBUG_LEVEL)
 
         while True:
-            self.surface.fill((124, 101, 101))
-
             # debug level rendering
             debug_level.update()
 
