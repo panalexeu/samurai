@@ -2,8 +2,8 @@ import sqlite3
 import os
 
 
-class SaveDatabase:
-    DB_PATH = "save.db"
+class SavesDatabase:
+    DB_PATH = "saves.db"
 
     PLAYER_POSITION_TABLE = """
         CREATE TABLE player_position(
@@ -13,10 +13,14 @@ class SaveDatabase:
     """
 
     GET_PLAYER_POSITION = "SELECT * FROM player_position"
+    INIT_PLAYER_POSITION = "INSERT INTO player_position VALUES(0, 0)"
     SET_PLAYER_POSITION = "UPDATE player_position SET pos_x = ?, pos_y = ?"
 
     def get_player_position(self):
         return self.run_query(query=self.GET_PLAYER_POSITION, fetch=True)
+
+    def set_player_position(self, pos_x, pos_y):
+        return self.run_query(query=self.SET_PLAYER_POSITION, args=(pos_x, pos_y), commit=True)
 
     def run_query(self, query, args=None, commit=False, fetch=False):
         args = args or ()
@@ -45,5 +49,8 @@ class SaveDatabase:
 
         with self.get_connection() as connection:
             cursor = connection.cursor()
+
             cursor.execute(self.PLAYER_POSITION_TABLE)
+            cursor.execute(self.INIT_PLAYER_POSITION)
+
             connection.commit()

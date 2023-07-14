@@ -1,3 +1,4 @@
+import main
 import sprite
 
 
@@ -19,5 +20,6 @@ class Bonfire(sprite.AnimatedSprite):
     def set_inaction(self):
         self.state = 'inaction'
 
-    def save_coordinates(self, coordinates):
-        pass
+    def save_position(self):
+        print(self.rect.x, self.rect.y)
+        main.saves_database.set_player_position(self.rect.x, self.rect.y)

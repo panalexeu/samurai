@@ -1,13 +1,17 @@
 import pygame
 
+import main
 import sprite
 import text
 import utils
 
 
 class Player(sprite.Sprite):
-    def __init__(self, pos):
-        super().__init__(pos, image_path='game_core/sprites/player/idle/samurai_idle1.png')
+    def __init__(self):
+        super().__init__(
+            pos=main.saves_database.get_player_position()[0],
+            image_path='game_core/sprites/player/idle/samurai_idle1.png'
+        )
 
         # Animations and animation state
         self.frame_index = 0
@@ -19,8 +23,8 @@ class Player(sprite.Sprite):
         )
 
         # Collide box
-        self.collide_box = sprite.Sprite(pos, 11, 16, (255, 255, 255))
-        self.collide_box_sprite = pygame.sprite.GroupSingle(self.collide_box)
+        # self.collide_box = sprite.Sprite(pos, 11, 16, (255, 255, 255))
+        # self.collide_box_sprite = pygame.sprite.GroupSingle(self.collide_box)
 
         # Vectors
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling

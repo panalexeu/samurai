@@ -6,6 +6,7 @@ import bonfire
 import coin
 import constants
 import debug_console
+import main
 import player
 import sprite
 
@@ -26,7 +27,7 @@ class Level:
         self.pickups = pygame.sprite.Group()
 
         # Player init
-        self.player = player.Player(pos=(0, 0))
+        self.player = player.Player()
         self.player_sprite = pygame.sprite.GroupSingle()
 
         # Map init
@@ -55,7 +56,7 @@ class Level:
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
                 elif column == 'P':
-                    self.player.reset_position((x, y))
+                    # self.player.reset_position((x, y))
                     self.player_sprite.add(self.player)
 
     def level_scroll(self):
@@ -131,12 +132,18 @@ class Level:
     def interactive_sprites_collisions(self):
         for sprite_ in self.interactive_sprites:
             if sprite_.rect.colliderect(self.player.rect):
+
                 # Bonfires handling
                 if isinstance(sprite_, bonfire.Bonfire):
                     if self.player.prev_bonfire:
                         self.player.prev_bonfire.set_inaction()
                     sprite_.set_action()
                     self.player.prev_bonfire = sprite_
+
+                    # DEBUG
+                    # TODO IMPLEMENT SAVING LEVEL SCROLL
+                    sprite_.save_position()
+                    print(main.saves_database.get_player_position())
 
     def get_all_sprite_groups(self):
         return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,
