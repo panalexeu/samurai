@@ -5,7 +5,7 @@ import pygame
 
 def import_sprites(sprites_path, animation_states: dict):
     for animation in animation_states.keys():
-        full_path = sprites_path + animation + '/'
+        full_path = sprites_path + '/' + animation + '/'
         animation_states[animation] = load_animation(full_path)
 
     return animation_states

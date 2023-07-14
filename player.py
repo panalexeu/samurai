@@ -6,28 +6,27 @@ import utils
 
 
 class Player(sprite.Sprite):
-    def __init__(self, pos, image_path):
-        super().__init__(pos, image_path=image_path)
+    def __init__(self, pos):
+        super().__init__(pos, image_path='game_core/sprites/player/idle/samurai_idle1.png')
 
-        # animations and animation state
+        # Animations and animation state
         self.frame_index = 0
         self.animation_speed = 0.1
         self.state = 'idle'
-        self.animations_states = {'idle': [], 'run': [], 'jump': [], 'stun': []}
         self.animations = utils.import_sprites(
-            sprites_path='game_core/sprites/player/',
-            animation_states=self.animations_states
+            sprites_path='game_core/sprites/player',
+            animation_states={'idle': [], 'run': [], 'jump': [], 'stun': []}
         )
 
-        # collide box
+        # Collide box
         self.collide_box = sprite.Sprite(pos, 11, 16, (255, 255, 255))
         self.collide_box_sprite = pygame.sprite.GroupSingle(self.collide_box)
 
-        # vectors
+        # Vectors
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
         self.facing_right = True
 
-        # speeds
+        # Speeds
         self.CONST_PLAYER_SPEED = 1
         self.player_speed = self.CONST_PLAYER_SPEED
 
@@ -37,7 +36,7 @@ class Player(sprite.Sprite):
         self.CONST_JUMP_SPEED = 6
         self.jump_speed = self.CONST_JUMP_SPEED
 
-        # ticks and action states
+        # Ticks and action states
         self.jump_state = False
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
@@ -47,6 +46,8 @@ class Player(sprite.Sprite):
         self.stun_tick = self.CONST_STUN_TICK
 
         # Items
+        self.prev_bonfire = None
+
         self.coins = 0
         self.coins_text = text.Text(
             font='Minecraft',

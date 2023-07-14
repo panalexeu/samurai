@@ -2,6 +2,8 @@ import itertools
 
 import pygame
 
+import bonfire
+import coin
 import constants
 import debug_console
 import player
@@ -12,14 +14,19 @@ class Level:
     def __init__(self, surface, level_map):
         self.surface = surface
 
-        # Level sprites init
+        # Level sprites init (rendering ones)
         self.collision_sprites = pygame.sprite.Group()
         self.animating_sprites = pygame.sprite.Group()
-        self.pickups = pygame.sprite.Group()
         self.destroyable_sprites = pygame.sprite.Group()
 
+        # Interactive sprites
+        self.interactive_sprites = pygame.sprite.Group()
+
+        # Pickups init
+        self.pickups = pygame.sprite.Group()
+
         # Player init
-        self.player = player.Player(pos=(0, 0), image_path='game_core/sprites/player/idle/samurai_idle1.png')
+        self.player = player.Player(pos=(0, 0))
         self.player_sprite = pygame.sprite.GroupSingle()
 
         # Map init
@@ -35,28 +42,21 @@ class Level:
                 y = row_index * 8
 
                 if column == '1':
-                    # noinspection PyTypeChecker
                     self.collision_sprites.add(
                         sprite.Sprite(
                             pos=(x, y),
-                            image_path='game_core/sprites/level_1/grass.png'
+                            image_path='game_core/sprites/level_1/brick.png'
                         )
                     )  # had some problems with that line
                 elif column == 'C':
-                    # noinspection PyTypeChecker
-                    self.pickups.add(
-                        sprite.AnimatedSprite(
-                            pos=(x, y),
-                            image_path='game_core/sprites/animated_sprites/coin/idle/coin1.png',
-                            anim_path='game_core/sprites/animated_sprites/coin/',
-                            anim_states={'idle': []},
-                            anim_speed=0.1
-                        )
-                    )
+                    self.pickups.add(coin.Coin(pos=(x, y)))
+                elif column == 'B':
+                    bonfire_ = bonfire.Bonfire(pos=(x, y))
+                    self.animating_sprites.add(bonfire_)
+                    self.interactive_sprites.add(bonfire_)
                 elif column == 'P':
                     self.player.reset_position((x, y))
-                    # noinspection PyTypeChecker
-                    self.player_sprite.add(self.player)  # had some problems with that line
+                    self.player_sprite.add(self.player)
 
     def level_scroll(self):
         for sprite_ in self.get_all_sprite_groups():  # joins pickups and destroyable with collision sprites
@@ -118,6 +118,26 @@ class Level:
                 ):
                     self.player.rect.left = sprite_.rect.right
 
+    def pickups_collisions(self):
+        collision = pygame.sprite.spritecollide(self.player, self.pickups,
+                                                dokill=True)  # here is possible to check with which object u collided (coin, item, posion)
+
+        if len(collision) > 0:
+            collision_obj = collision[0]
+            if isinstance(collision_obj, coin.Coin):
+                self.player.coins += 1
+
+    def interactive_sprites_collisions(self):
+        for sprite_ in self.interactive_sprites:
+            if sprite_.rect.colliderect(self.player.rect):
+                # Implement hints system
+                # Bonfires handling
+                if isinstance(sprite_, bonfire.Bonfire):
+                    if self.player.prev_bonfire:
+                        self.player.prev_bonfire.set_inaction()
+                    sprite_.set_action()
+                    self.player.prev_bonfire = sprite_
+
     def get_all_sprite_groups(self):
         return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,
                                self.destroyable_sprites)
@@ -131,23 +151,22 @@ class Level:
             if isinstance(sprite_, sprite.AnimatedSprite):
                 sprite_.animate()
 
-    def pickups_collisions(self):
-        collisions = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided (coin, item, posion)
-        self.player.coins += len(collisions)
-
     def update(self):
         self.surface.fill((124, 101, 101))
 
-        # Level sprites render
+        # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
+        self.animating_sprites.draw(self.surface)
         self.pickups.draw(self.surface)
+        self.animate_sprites()
         self.animate_pickups()
 
         # Level scroll
         self.level_scroll()
 
-        # Collisions handling
+        # Level objects collisions handling
         self.pickups_collisions()
+        self.interactive_sprites_collisions()
 
         # Player handling and render
         self.player.update()
