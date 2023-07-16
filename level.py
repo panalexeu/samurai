@@ -27,7 +27,7 @@ class Level:
         self.pickups = pygame.sprite.Group()
 
         # Player init
-        self.player = player.Player()
+        self.player = player.Player(surface)
         self.player_sprite = pygame.sprite.GroupSingle()
         self.player_sprite.add(self.player)
 
@@ -144,7 +144,6 @@ class Level:
                     # DEBUG
                     # TODO IMPLEMENT SAVING LEVEL SCROLL
                     sprite_.save_position()
-                    print(main.saves_database.get_player_position())
 
     def get_all_sprite_groups(self):
         return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,

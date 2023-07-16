@@ -7,11 +7,14 @@ import utils
 
 
 class Player(sprite.Sprite):
-    def __init__(self):
+    def __init__(self, surface):
         super().__init__(
             pos=main.saves_database.get_player_position()[0],
             image_path='game_core/sprites/player/idle/samurai_idle1.png'
         )
+
+        # Surface init
+        self.surface = surface
 
         # Animations and animation state
         self.frame_index = 0
@@ -19,7 +22,7 @@ class Player(sprite.Sprite):
         self.state = 'idle'
         self.animations = utils.import_sprites(
             sprites_path='game_core/sprites/player',
-            animation_states={'idle': [], 'run': [], 'jump': [], 'stun': []}
+            animation_states={'idle': [], 'run': [], 'jump': [], 'attack': [], 'stun': []}
         )
 
         # Collide box
@@ -29,6 +32,10 @@ class Player(sprite.Sprite):
         # Vectors
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
         self.facing_right = True
+
+        # Attack range
+        self.CONST_ATTACK_RANGE = 5
+        self.attack_range = 0
 
         # Speeds
         self.CONST_PLAYER_SPEED = 1
@@ -61,6 +68,7 @@ class Player(sprite.Sprite):
         )
 
     def get_input(self):
+        # Pressed keys
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_d]:
@@ -79,9 +87,30 @@ class Player(sprite.Sprite):
         else:
             self.direction.y = 0
 
+        if keys[pygame.K_e]:
+            self.draw_attack_range_line()
+
+        # Unpressed keys
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_e:
+                    self.state = 'attack'
+                    self.attack_range = 0
+
     def player_movement(self):
         self.rect.x += self.direction.x * self.player_speed
         self.rect.y += self.direction.y * self.jump_speed + self.player_gravity
+
+    def draw_attack_range_line(self):
+        if self.attack_range <= self.CONST_ATTACK_RANGE:
+            self.attack_range += 1
+
+        if self.facing_right:
+            pygame.draw.line(self.surface, 'white', self.rect.bottomright,
+                             (self.rect.bottomright[0] + self.attack_range, self.rect.bottomright[1]), 1)
+        else:
+            pygame.draw.line(self.surface, 'white', self.rect.bottomleft,
+                             (self.rect.bottomleft[0] - self.attack_range, self.rect.bottomright[1]), 1)
 
     def animate(self):
         animation = self.animations[self.state]
