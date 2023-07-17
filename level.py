@@ -27,7 +27,7 @@ class Level:
         self.pickups = pygame.sprite.Group()
 
         # Player init
-        self.player = player.Player()
+        self.player = player.Player(self.surface)
         self.player_sprite = pygame.sprite.GroupSingle()
         self.player_sprite.add(self.player)
 
@@ -97,12 +97,7 @@ class Level:
             if sprite_.rect.colliderect(self.player.rect):
                 if self.player.direction.y < 0 and self.player.rect.y > sprite_.rect.y:
                     self.player.rect.top = sprite_.rect.bottom
-
-                    # Handling stun
-                    self.player.stun_state = True
                     self.player.direction.y = 0
-                    self.player.direction.x = 0
-
                 elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
                     self.player.rect.bottom = sprite_.rect.top
 
@@ -144,7 +139,6 @@ class Level:
                     # DEBUG
                     # TODO IMPLEMENT SAVING LEVEL SCROLL
                     sprite_.save_position()
-                    print(main.saves_database.get_player_position())
 
     def get_all_sprite_groups(self):
         return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,
