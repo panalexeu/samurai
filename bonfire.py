@@ -21,4 +21,5 @@ class Bonfire(sprite.AnimatedSprite):
         self.state = 'inaction'
 
     def save_position(self):
+        print(self.rect.x, self.rect.y)
         main.saves_database.set_player_position(self.rect.x, self.rect.y)
