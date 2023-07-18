@@ -10,7 +10,7 @@ class Player(sprite.Sprite):
     def __init__(self, surface):
         super().__init__(
             pos=main.saves_database.get_player_position()[0],
-            image_path='game_core/sprites/player/idle/samurai_idle1.png'
+            image_path='game_core/sprites/player/idle/samurai_idle.png'
         )
 
         self.surface = surface
@@ -21,7 +21,7 @@ class Player(sprite.Sprite):
         self.state = 'idle'
         self.animations = utils.import_sprites(
             sprites_path='game_core/sprites/player',
-            animation_states={'idle': [], 'run': [], 'jump': [], 'prepare_lash_attack': [], 'lash_attack': [], 'stun': []}
+            animation_states={'idle': [], 'run': [], 'jump': [], 'bamboo_stick_attack': [], 'stun': []}
         )
 
         # Collide box
@@ -49,21 +49,22 @@ class Player(sprite.Sprite):
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
 
+        self.bamboo_stick_attack_state = False
+        self.CONST_BAMBOO_STICK_ATTACK_TICK = 40
+        self.bamboo_stick_attack_tick = 0
+
         self.stun_state = False
         self.CONST_STUN_TICK = 100
         self.stun_tick = self.CONST_STUN_TICK
 
-        self.lash_attack_state = False
-        self.CONST_LASH_ATTACK_TICK = 30
-        self.attack_lash_tick = self.CONST_LASH_ATTACK_TICK
-
         # Stats
-        self.CONST_LASH_LENGTH = 16
-        self.lash_length = 0
+        self.CONST_BAMBOO_STICK_LENGTH = 8
+        self.bamboo_stick_length = 0
 
         # Items
         self.coins = 0
 
+        # TODO CURRENTLY JUST FOR DEBUGGING
         # Inventory handling
         self.coins_text = text.Text(
             font='Minecraft',
@@ -96,13 +97,7 @@ class Player(sprite.Sprite):
             self.direction.y = 0
 
         if keys[pygame.K_e]:
-            self.state = 'prepare_lash_attack'
-
-        # Unpressed keys handling
-        for event in pygame.event.get():
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_e:
-                    self.lash_attack_state = True
+            self.bamboo_stick_attack_state = True
 
     def player_movement(self):
         self.rect.x += self.direction.x * self.player_speed
@@ -126,13 +121,11 @@ class Player(sprite.Sprite):
             self.state = 'run'
         elif self.direction.y < 0:
             self.state = 'jump'
-        elif self.lash_attack_state:
-            self.state = 'lash_attack'
         else:
             self.state = 'idle'
 
     def states_update(self):
-        if self.lash_attack_state:
+        if self.bamboo_stick_attack_state:
             self.lash_attack_handle()
 
         if self.jump_state:
@@ -145,21 +138,27 @@ class Player(sprite.Sprite):
             self.immovable_state_handle()
 
     def lash_attack_handle(self):
+        self.state = 'bamboo_stick_attack'
         self.immovable_state = True
 
-        if self.lash_length < self.CONST_LASH_LENGTH:
-            self.lash_length += 1
-        else:
-            self.immovable_state = False
-            self.lash_attack_state = False
-            self.lash_length = 0
+        if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
+            self.bamboo_stick_length += 1
 
+        self.bamboo_stick_attack_tick += 1
+        if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
+            self.immovable_state = False
+            self.bamboo_stick_attack_state = False
+            self.bamboo_stick_attack_tick = 0
+            self.bamboo_stick_length = 0
+
+        # Handling bamboo stick render
+        bamboo_stick_color = (153, 229, 80)
         if self.facing_right:
-            pygame.draw.line(self.surface, 'white', (self.rect.center[0] + 6, self.rect.center[1] - 3),
-                             (self.rect.center[0] + 6 + self.lash_length, self.rect.center[1] - 3))
+            pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] + 6, self.rect.center[1] - 3),
+                             (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 3))
         else:
-            pygame.draw.line(self.surface, 'white', (self.rect.center[0] - 6, self.rect.center[1] - 3),
-                             (self.rect.center[0] + - 6 - self.lash_length, self.rect.center[1] - 3))
+            pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] - 6, self.rect.center[1] - 3),
+                             (self.rect.center[0] + - 6 - self.bamboo_stick_length, self.rect.center[1] - 3))
 
     def jump_handle(self):
         self.jump_tick -= 1
