@@ -121,6 +121,15 @@ class Level:
                 ):
                     self.player.rect.left = sprite_.rect.right
 
+    def yokai_vertical_collision(self):
+        for enemy in self.enemies:
+            for sprite_ in self.collision_sprites:
+                if sprite_.rect.colliderect(enemy.rect):
+                    if enemy.direction.x == 1:
+                        enemy.direction.x = -1
+                    else:
+                        enemy.direction.x = 1
+
     def pickups_collisions(self):
         collision = pygame.sprite.spritecollide(self.player, self.pickups,
                                                 dokill=True)  # here is possible to check with which object u collided (coin, item, posion)
@@ -159,28 +168,42 @@ class Level:
             if isinstance(sprite_, sprite.AnimatedSprite):
                 sprite_.animate()
 
-    def animate_enemies(self):
+    def enemies_update(self):
         for sprite_ in self.enemies:
             sprite_.update()
 
+    def player_hit_collision(self):
+        if self.player.bamboo_stick_attack_state:
+            pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
+
+    def enemies_hit_collision(self):
+        for sprite_ in self.enemies:
+            if sprite_.rect.colliderect(self.player.rect):
+                self.player.death()
+
     def update(self):
         self.surface.fill((0, 0, 10))
+
+        # Level scroll
+        # self.level_scroll()
 
         # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
         self.animating_sprites.draw(self.surface)
         self.pickups.draw(self.surface)
-        self.enemies.draw(self.surface)
-        self.animate_enemies()
         self.animate_sprites()
         self.animate_pickups()
-
-        # Level scroll
-        # self.level_scroll()
 
         # Level objects collisions handling
         self.pickups_collisions()
         self.interactive_sprites_collisions()
+
+        # Enemies handling
+        self.enemies.draw(self.surface)
+        self.enemies_update()
+        self.yokai_vertical_collision()
+        self.player_hit_collision()
+        self.enemies_hit_collision()
 
         # Player handling and render
         self.player.update()

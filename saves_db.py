@@ -17,7 +17,7 @@ class SavesDatabase:
     SET_PLAYER_POSITION = "UPDATE player_position SET pos_x = ?, pos_y = ?"
 
     def get_player_position(self):
-        return self.run_query(query=self.GET_PLAYER_POSITION, fetch=True)
+        return self.run_query(query=self.GET_PLAYER_POSITION, fetch=True)[0]
 
     def set_player_position(self, pos_x, pos_y):
         return self.run_query(query=self.SET_PLAYER_POSITION, args=(pos_x, pos_y), commit=True)

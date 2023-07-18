@@ -19,15 +19,12 @@ class Yokai(sprite.AnimatedSprite):
         self.direction = pygame.math.Vector2(random.choice((-1, 1)), 0)
 
         # Yokai stats
-        self.speed = 0.1
-        self.jump_speed = 1
+        self.speed = 1
         self.gravity = 0
 
     def movement(self):
         self.state = 'run'
-        print(self.direction.x)
         self.rect.x += self.direction.x * self.speed
-        self.rect.y += self.direction.y * self.jump_speed + self.gravity
 
     def animate(self):
         animation = self.animations[self.state]

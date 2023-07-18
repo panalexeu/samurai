@@ -15,7 +15,7 @@ class Sprite(pygame.sprite.Sprite):
         super().__init__()
 
         if color and size_x and size_y:
-            self.image = pygame.Surface((size_x, size_y))
+            self.resize(size_x, size_y)
             self.image.fill(color)
         else:
             self.image = pygame.image.load(image_path)
@@ -24,6 +24,9 @@ class Sprite(pygame.sprite.Sprite):
 
     def reset_position(self, pos):
         self.rect = self.image.get_rect(bottomleft=pos)
+
+    def resize(self, size_x, size_y):
+        self.image = pygame.Surface((size_x, size_y))
 
     def shift(self, shift_x, shift_y):
         self.rect.x += shift_x

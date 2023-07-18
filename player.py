@@ -9,7 +9,7 @@ import utils
 class Player(sprite.Sprite):
     def __init__(self, surface):
         super().__init__(
-            pos=main.saves_database.get_player_position()[0],
+            pos=main.saves_database.get_player_position(),
             image_path='game_core/sprites/player/idle/samurai_idle.png'
         )
 
@@ -24,13 +24,13 @@ class Player(sprite.Sprite):
             animation_states={'idle': [], 'run': [], 'jump': [], 'bamboo_stick_attack': [], 'stun': []}
         )
 
-        # Collide box
-        # self.collide_box = sprite.Sprite(pos, 11, 16, (255, 255, 255))
-        # self.collide_box_sprite = pygame.sprite.GroupSingle(self.collide_box)
-
         # Vectors
         self.direction = pygame.math.Vector2(0, 0)  # vector used for movement handling
         self.facing_right = True
+
+        # Attack box
+        self.attack_box = sprite.Sprite(self.rect.center, 1, 1, (255, 255, 255))
+        self.attack_box_sprite = pygame.sprite.GroupSingle(self.attack_box)
 
         # Speeds
         self.CONST_PLAYER_SPEED = 1
@@ -156,9 +156,18 @@ class Player(sprite.Sprite):
         if self.facing_right:
             pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] + 6, self.rect.center[1] - 3),
                              (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 3))
+            # Handling attack box
+            self.attack_box.reset_position(
+                (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 2))
         else:
             pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] - 6, self.rect.center[1] - 3),
-                             (self.rect.center[0] + - 6 - self.bamboo_stick_length, self.rect.center[1] - 3))
+                             (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 3))
+            # Handling attack box
+            self.attack_box.reset_position(
+                (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 2))
+
+        # Debug
+        # self.attack_box_sprite.draw(self.surface)
 
     def jump_handle(self):
         self.jump_tick -= 1
@@ -181,6 +190,9 @@ class Player(sprite.Sprite):
         if self.immovable_state:
             self.direction.x = 0
             self.direction.y = 0
+
+    def death(self):
+        self.reset_position(main.saves_database.get_player_position())
 
     def print_items(self, surface):
         self.coins_text.display_text(text=f'coins: {self.coins}', surface=surface)
