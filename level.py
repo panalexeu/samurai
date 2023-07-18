@@ -9,6 +9,7 @@ import debug_console
 import main
 import player
 import sprite
+import yokai
 
 
 class Level:
@@ -25,6 +26,9 @@ class Level:
 
         # Pickups init
         self.pickups = pygame.sprite.Group()
+
+        # Enemies init
+        self.enemies = pygame.sprite.Group()
 
         # Player init
         self.player = player.Player(self.surface)
@@ -52,6 +56,8 @@ class Level:
                     )  # had some problems with that line
                 elif column == 'C':
                     self.pickups.add(coin.Coin(pos=(x, y)))
+                elif column == 'Y':
+                    self.enemies.add(yokai.Yokai(pos=(x, y)))
                 elif column == 'B':
                     bonfire_ = bonfire.Bonfire(pos=(x, y))
                     self.animating_sprites.add(bonfire_)
@@ -153,6 +159,10 @@ class Level:
             if isinstance(sprite_, sprite.AnimatedSprite):
                 sprite_.animate()
 
+    def animate_enemies(self):
+        for sprite_ in self.enemies:
+            sprite_.update()
+
     def update(self):
         self.surface.fill((0, 0, 10))
 
@@ -160,6 +170,8 @@ class Level:
         self.collision_sprites.draw(self.surface)
         self.animating_sprites.draw(self.surface)
         self.pickups.draw(self.surface)
+        self.enemies.draw(self.surface)
+        self.animate_enemies()
         self.animate_sprites()
         self.animate_pickups()
 
