@@ -50,7 +50,7 @@ class Player(sprite.Sprite):
         self.jump_tick = self.CONST_JUMP_TICK
 
         self.bamboo_stick_attack_state = False
-        self.CONST_BAMBOO_STICK_ATTACK_TICK = 40
+        self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
         self.bamboo_stick_attack_tick = 0
 
         self.stun_state = False

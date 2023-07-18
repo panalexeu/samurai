@@ -9,7 +9,7 @@ import debug_console
 import main
 import player
 import sprite
-import yokai
+import basic_enemy
 
 
 class Level:
@@ -57,7 +57,9 @@ class Level:
                 elif column == 'C':
                     self.pickups.add(coin.Coin(pos=(x, y)))
                 elif column == 'Y':
-                    self.enemies.add(yokai.Yokai(pos=(x, y)))
+                    self.enemies.add(basic_enemy.Yokai(pos=(x, y)))
+                elif column == 'S':
+                    self.enemies.add(basic_enemy.Spider(pos=(x, y)))
                 elif column == 'B':
                     bonfire_ = bonfire.Bonfire(pos=(x, y))
                     self.animating_sprites.add(bonfire_)
@@ -121,14 +123,20 @@ class Level:
                 ):
                     self.player.rect.left = sprite_.rect.right
 
-    def yokai_vertical_collision(self):
+    def enemies_collisions(self):
         for enemy in self.enemies:
             for sprite_ in self.collision_sprites:
                 if sprite_.rect.colliderect(enemy.rect):
-                    if enemy.direction.x == 1:
-                        enemy.direction.x = -1
-                    else:
-                        enemy.direction.x = 1
+                    if isinstance(enemy, basic_enemy.Yokai):
+                        if enemy.direction.x == 1:
+                            enemy.direction.x = -1
+                        else:
+                            enemy.direction.x = 1
+                    elif isinstance(enemy, basic_enemy.Spider):
+                        if enemy.direction.y == -1:
+                            enemy.direction.y = 1
+                        else:
+                            enemy.direction.y = -1
 
     def pickups_collisions(self):
         collision = pygame.sprite.spritecollide(self.player, self.pickups,
@@ -172,14 +180,14 @@ class Level:
         for sprite_ in self.enemies:
             sprite_.update()
 
-    def player_hit_collision(self):
-        if self.player.bamboo_stick_attack_state:
-            pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
-
     def enemies_hit_collision(self):
         for sprite_ in self.enemies:
             if sprite_.rect.colliderect(self.player.rect):
                 self.player.death()
+
+    def player_hit_collision(self):
+        if self.player.bamboo_stick_attack_state:
+            pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
 
     def update(self):
         self.surface.fill((0, 0, 10))
@@ -201,7 +209,7 @@ class Level:
         # Enemies handling
         self.enemies.draw(self.surface)
         self.enemies_update()
-        self.yokai_vertical_collision()
+        self.enemies_collisions()
         self.player_hit_collision()
         self.enemies_hit_collision()
 
