@@ -24,6 +24,9 @@ class Level:
         # Interactive sprites
         self.interactive_sprites = pygame.sprite.Group()
 
+        # Traps init
+        self.traps_sprites = pygame.sprite.Group()
+
         # Pickups init
         self.pickups = pygame.sprite.Group()
 
@@ -43,30 +46,41 @@ class Level:
 
     def level_map_init(self, level_map):
         for row_index, row in enumerate(level_map):
-            for column_index, column in enumerate(row):
+            for column_index, cell in enumerate(row):
                 x = column_index * 8
                 y = row_index * 8
 
-                if column == '1':
+                if cell == '1':
                     self.collision_sprites.add(
                         sprite.Sprite(
                             pos=(x, y),
-                            image_path='game_core/sprites/level_1/brick.png'
+                            image_path='game_core/sprites/castle/brick.png'
                         )
                     )  # had some problems with that line
-                elif column == 'C':
+                elif cell == 'D':
+                    self.destroyable_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/old_brick.png'
+                        )
+                    )
+                elif cell == 'T':
+                    self.traps_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/bamboo_trap.png'
+                        )
+                    )
+                elif cell == 'C':
                     self.pickups.add(coin.Coin(pos=(x, y)))
-                elif column == 'Y':
+                elif cell == 'Y':
                     self.enemies.add(basic_enemy.Yokai(pos=(x, y)))
-                elif column == 'S':
+                elif cell == 'S':
                     self.enemies.add(basic_enemy.Spider(pos=(x, y)))
-                elif column == 'B':
+                elif cell == 'B':
                     bonfire_ = bonfire.Bonfire(pos=(x, y))
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
-                # elif column == 'P':
-                #     # self.player.reset_position((x, y))
-                #     self.player_sprite.add(self.player)
 
     def level_scroll(self):
         for sprite_ in self.get_all_sprite_groups():  # joins pickups and destroyable with collision sprites
@@ -147,6 +161,14 @@ class Level:
             if isinstance(collision_obj, coin.Coin):
                 self.player.coins += 1
 
+    def destroyable_sprites_collision(self):
+        pygame.sprite.spritecollide(self.player, self.destroyable_sprites, dokill=True)
+
+    def traps_collision(self):
+        for sprite_ in self.traps_sprites:
+            if sprite_.rect.colliderect(self.player.rect):
+                self.player.death()
+
     # TODO Implement hints system
     def interactive_sprites_collisions(self):
         for sprite_ in self.interactive_sprites:
@@ -198,12 +220,16 @@ class Level:
         # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
         self.animating_sprites.draw(self.surface)
+        self.destroyable_sprites.draw(self.surface)
+        self.traps_sprites.draw(self.surface)
         self.pickups.draw(self.surface)
         self.animate_sprites()
         self.animate_pickups()
 
         # Level objects collisions handling
         self.pickups_collisions()
+        self.traps_collision()
+        self.destroyable_sprites_collision()
         self.interactive_sprites_collisions()
 
         # Enemies handling

@@ -142,7 +142,7 @@ class Player(sprite.Sprite):
         self.immovable_state = True
 
         if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
-            self.bamboo_stick_length += 1
+            self.bamboo_stick_length += 2  # bamboo stick deploying speed
 
         self.bamboo_stick_attack_tick += 1
         if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
