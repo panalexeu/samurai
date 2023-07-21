@@ -2,19 +2,20 @@ import itertools
 
 import pygame
 
+import basic_enemy
 import bonfire
 import coin
 import constants
 import debug_console
-import main
+import level_system
 import player
 import sprite
-import basic_enemy
 
 
 class Level:
-    def __init__(self, surface, level_map):
+    def __init__(self, surface, level_map_key):
         self.surface = surface
+        self.level_map_key = level_map_key
 
         # Entrance system init
         self.level_entrance = {'east': [], 'west': [], 'north': [], 'south': []}
@@ -42,12 +43,14 @@ class Level:
         self.player_sprite.add(self.player)
 
         # Map init
-        self.level_map_init(level_map)
+        self.level_map_init()
 
         # Console init
         self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
 
-    def level_map_init(self, level_map):
+    def level_map_init(self):
+        level_map = level_system.LEVEL_MAPS[self.level_map_key]
+
         level_width = len(level_map[0]) * 8
         level_height = len(level_map) * 8
 
@@ -168,7 +171,7 @@ class Level:
 
     def pickups_collisions(self):
         collision = pygame.sprite.spritecollide(self.player, self.pickups,
-                                                dokill=True)  # here is possible to check with which object u collided (coin, item, posion)
+                                                dokill=True)  # here is possible to check with which object u collided (coin, item, position)
 
         if len(collision) > 0:
             collision_obj = collision[0]
@@ -200,14 +203,16 @@ class Level:
                     sprite_.save_position()
 
     def entrance_collision(self):
-        for key in self.level_entrance:
-            for sprite_ in self.level_entrance[key]:
-                if sprite_.rect.colliderect(self.player.rect) and key == 'east':
-                    print(self.collision_sprites)
-                    self.player.reset_position((75, 0))
-                    self.collision_sprites.empty()
-                    print(self.collision_sprites)
-                    self.level_map_init(constants.TEST_CENTER_LEVEL)
+        for direction_key in self.level_entrance:
+            for sprite_ in self.level_entrance[direction_key]:
+                if sprite_.rect.colliderect(self.player.rect):
+                    if direction_key == 'east':
+                        self.player.reset_position((75, 0))
+                        self.collision_sprites.empty()
+                        print(self.level_map_key)
+                        self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
+                        print(self.level_map_key)
+                        self.level_map_init()
 
     def get_all_sprite_groups(self):
         return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,

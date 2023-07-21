@@ -8,5 +8,4 @@ saves_database.initialize()
 
 # The entry point of the whole game
 if __name__ == '__main__':
-    screen = screen.MainScreen()
-    screen.run()
+    screen.MainScreen().run()
