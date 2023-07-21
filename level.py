@@ -11,8 +11,10 @@ import sprite
 
 
 class Level:
+    # noinspection PyTypeChecker
     def __init__(self, surface, level_map_key):
         self.surface = surface
+        self.level_background = (0, 0, 0)
         self.level_map_key = level_map_key
 
         # Entrance system init
@@ -20,6 +22,7 @@ class Level:
 
         # Level sprites init (rendering ones)
         self.collision_sprites = pygame.sprite.Group()
+        self.background_sprites = pygame.sprite.Group()
         self.animating_sprites = pygame.sprite.Group()
         self.destroyable_sprites = pygame.sprite.Group()
 
@@ -41,47 +44,73 @@ class Level:
         self.player_sprite.add(self.player)
 
         # Map init
-        self.level_map_init()
+        self.level_map_init(None)
 
         # Console init
         self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
 
-    def level_map_init(self):
+    # noinspection PyTypeChecker
+    def level_map_init(self, prev_direction):
         level_map = level_system.LEVEL_MAPS[self.level_map_key]
 
         level_width = len(level_map[0]) * 8
         level_height = len(level_map) * 8
-        print(level_width, level_height)
 
         for row_index, row in enumerate(level_map):
             for column_index, cell in enumerate(row):
                 # Centering the level map on the surface algorithm
                 x = column_index * 8 + ((constants.SURFACE_SIZE[0] - level_width) / 2)
                 y = row_index * 8 + ((constants.SURFACE_SIZE[1] - level_height) / 2)
+                pos = (x, y)
 
+                # Collision sprites
                 if cell == '1':
                     self.collision_sprites.add(
                         sprite.Sprite(
-                            pos=(x, y),
+                            pos=pos,
                             image_path='game_core/sprites/castle/brick.png'
                         )
-                    )  # had some problems with that line
+                    )
+                elif cell == '2':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/brick_window.png'
+                        )
+                    )
+
+                # Background sprites
+
+                # Destroyable
                 elif cell == 'D':
                     self.destroyable_sprites.add(
                         sprite.Sprite(
-                            pos=(x, y),
+                            pos=pos,
                             image_path='game_core/sprites/castle/old_brick.png'
                         )
                     )
+
+                # Traps
                 elif cell == 'T':
                     self.traps_sprites.add(
                         sprite.Sprite(
-                            pos=(x, y),
+                            pos=pos,
                             image_path='game_core/sprites/castle/bamboo_trap.png'
                         )
                     )
-                # Handling directions
+
+                # Entrances
                 elif cell == 'E':
+                    if prev_direction == 'west':
+                        self.player.reset_position(pos=(x + 11, y))
+
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/brick_door.png'
+                        )
+                    )
+
                     self.level_entrances['east'].append(
                         sprite.Sprite(
                             pos=(x, y),
@@ -89,20 +118,36 @@ class Level:
                         )
                     )
                 elif cell == 'W':
+                    if prev_direction == 'east':
+                        self.player.reset_position(pos=(x - 11, y))
+
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/brick_door.png'
+                        )
+                    )
+
                     self.level_entrances['west'].append(
                         sprite.Sprite(
                             pos=(x, y),
                             image_path='game_core/sprites/castle/transparent.png'
                         )
                     )
+
+                # Pickups
                 elif cell == 'C':
-                    self.pickups.add(coin.Coin(pos=(x, y)))
+                    self.pickups.add(coin.Coin(pos=pos))
+
+                # Enemies
                 elif cell == 'Y':
-                    self.enemies.add(basic_enemy.Yokai(pos=(x, y)))
+                    self.enemies.add(basic_enemy.Yokai(pos=pos))
                 elif cell == 'S':
-                    self.enemies.add(basic_enemy.Spider(pos=(x, y)))
+                    self.enemies.add(basic_enemy.Spider(pos=pos))
+
+                # Interactive sprites
                 elif cell == 'B':
-                    bonfire_ = bonfire.Bonfire(pos=(x, y))
+                    bonfire_ = bonfire.Bonfire(pos=pos)
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
 
@@ -112,7 +157,7 @@ class Level:
 
     def clear_level_sprites(self):
         self.collision_sprites.empty()
-        self.collision_sprites.empty()
+        self.background_sprites.empty()
         self.animating_sprites.empty()
         self.destroyable_sprites.empty()
         self.interactive_sprites.empty()
@@ -232,9 +277,8 @@ class Level:
                         self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
                     elif direction_key == 'west':
                         self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
-                    self.player.reset_position((100, 0))
                     self.clear_level_sprites()
-                    self.level_map_init()
+                    self.level_map_init(direction_key)
 
     def animate_sprites(self):
         for spite_ in self.animating_sprites:
@@ -259,10 +303,11 @@ class Level:
             pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
 
     def update(self):
-        self.surface.fill((0, 0, 10))
+        self.surface.fill(self.level_background)
 
         # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
+        self.background_sprites.draw(self.surface)
         self.animating_sprites.draw(self.surface)
         self.destroyable_sprites.draw(self.surface)
         self.traps_sprites.draw(self.surface)
