@@ -1,5 +1,3 @@
-import itertools
-
 import pygame
 
 import basic_enemy
@@ -18,7 +16,7 @@ class Level:
         self.level_map_key = level_map_key
 
         # Entrance system init
-        self.level_entrance = {'east': [], 'west': [], 'north': [], 'south': []}
+        self.level_entrances = {'east': [], 'west': [], 'north': [], 'south': []}
 
         # Level sprites init (rendering ones)
         self.collision_sprites = pygame.sprite.Group()
@@ -53,6 +51,7 @@ class Level:
 
         level_width = len(level_map[0]) * 8
         level_height = len(level_map) * 8
+        print(level_width, level_height)
 
         for row_index, row in enumerate(level_map):
             for column_index, cell in enumerate(row):
@@ -81,8 +80,16 @@ class Level:
                             image_path='game_core/sprites/castle/bamboo_trap.png'
                         )
                     )
+                # Handling directions
                 elif cell == 'E':
-                    self.level_entrance['east'].append(
+                    self.level_entrances['east'].append(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/transparent.png'
+                        )
+                    )
+                elif cell == 'W':
+                    self.level_entrances['west'].append(
                         sprite.Sprite(
                             pos=(x, y),
                             image_path='game_core/sprites/castle/transparent.png'
@@ -99,8 +106,24 @@ class Level:
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
 
+    def clear_entrance_sprites(self):
+        for value in self.level_entrances.values():
+            value.clear()
+
+    def clear_level_sprites(self):
+        self.collision_sprites.empty()
+        self.collision_sprites.empty()
+        self.animating_sprites.empty()
+        self.destroyable_sprites.empty()
+        self.interactive_sprites.empty()
+        self.traps_sprites.empty()
+        self.pickups.empty()
+        self.enemies.empty()
+        self.clear_entrance_sprites()
+
+    # Not using anymore
     def level_scroll(self):
-        for sprite_ in self.get_all_sprite_groups():  # joins pickups and destroyable with collision sprites
+        for sprite_ in self.collision_sprites:  # joins pickups and destroyable with collision sprites
             # x coordinate scrolling
             indent_x = constants.SURFACE_SIZE[0] / 4
             if self.player.rect.x < indent_x and self.player.direction.x < 0:
@@ -170,8 +193,7 @@ class Level:
                             enemy.direction.y = -1
 
     def pickups_collisions(self):
-        collision = pygame.sprite.spritecollide(self.player, self.pickups,
-                                                dokill=True)  # here is possible to check with which object u collided (coin, item, position)
+        collision = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided (coin, item, position)
 
         if len(collision) > 0:
             collision_obj = collision[0]
@@ -203,20 +225,16 @@ class Level:
                     sprite_.save_position()
 
     def entrance_collision(self):
-        for direction_key in self.level_entrance:
-            for sprite_ in self.level_entrance[direction_key]:
+        for direction_key in self.level_entrances:
+            for sprite_ in self.level_entrances[direction_key]:
                 if sprite_.rect.colliderect(self.player.rect):
                     if direction_key == 'east':
-                        self.player.reset_position((75, 0))
-                        self.collision_sprites.empty()
-                        print(self.level_map_key)
                         self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
-                        print(self.level_map_key)
-                        self.level_map_init()
-
-    def get_all_sprite_groups(self):
-        return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,
-                               self.destroyable_sprites)
+                    elif direction_key == 'west':
+                        self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
+                    self.player.reset_position((100, 0))
+                    self.clear_level_sprites()
+                    self.level_map_init()
 
     def animate_sprites(self):
         for spite_ in self.animating_sprites:

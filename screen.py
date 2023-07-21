@@ -13,7 +13,7 @@ class MainScreen:
         self.clock = pygame.time.Clock()
 
     def run(self):
-        screen_level = level.Level(self.surface, 'DEBUG_LEVEL')
+        screen_level = level.Level(self.surface, 'CENTER_LEVEL')
 
         while True:
             # Screen level rendering

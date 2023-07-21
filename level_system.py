@@ -1,6 +1,6 @@
 # Levels maps
 LEVEL_MAPS = {
-    'DEBUG_LEVEL': [
+    'DEBUG_LEVEL': (
         '00000000000000C0000000000',
         '00000000000000C00000000000000000000',
         '00000000000000C00000000000000000000',
@@ -21,15 +21,36 @@ LEVEL_MAPS = {
         '000001000000000000S0000100000000000',
         'E00001YCCC0CC0CC0CCC00Y1B000000000B',
         '1111111111TT11TT1111TTT1111111111111',
-    ],
-    'TEST_CENTER_LEVEL': [
-        '10000001',
-        '00000001',
+    ),
+
+    'TEST_CENTER_LEVEL': (
+        '1000000W',
+        '0000000W',
         '11111111',
-    ]
+    ),
+
+    'CENTER_LEVEL': (
+        'E0CCC00W',
+        '11111111'
+    ),
+    'EAST_LEVEL': (
+            '110000',
+            '100000',
+            '1S000W',
+            '111111'
+        ),
+    'WEST_LEVEL': (
+            'E010Y1',
+            '111111'
+        ),
 }
 
 # Level adjacency map
 LEVEL_ADJACENCY_MAP = {
     'DEBUG_LEVEL': {'east': 'TEST_CENTER_LEVEL'},
+    'TEST_CENTER_LEVEL': {'west': 'DEBUG_LEVEL'},
+
+    'CENTER_LEVEL': {'east': 'EAST_LEVEL', 'west': 'WEST_LEVEL'},
+    'EAST_LEVEL': {'west': 'CENTER_LEVEL'},
+    'WEST_LEVEL': {'east': 'CENTER_LEVEL'}
 }

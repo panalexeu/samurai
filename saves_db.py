@@ -13,7 +13,7 @@ class SavesDatabase:
     """
 
     GET_PLAYER_POSITION = "SELECT * FROM player_position"
-    INIT_PLAYER_POSITION = "INSERT INTO player_position VALUES(100, 88)"
+    INIT_PLAYER_POSITION = "INSERT INTO player_position VALUES(100, 0)"
     SET_PLAYER_POSITION = "UPDATE player_position SET pos_x = ?, pos_y = ?"
 
     def get_player_position(self):
