@@ -11,13 +11,15 @@ class MainScreen:
         self.surface = pygame.Surface(constants.SURFACE_SIZE)
         self.clock = pygame.time.Clock()
 
-    def run(self):
-        # debug level init
-        debug_level = level.Level(self.surface, constants.DEBUG_LEVEL)
+        self.screen_level = level.Level(self.surface, constants.DEBUG_LEVEL)
 
+    def set_screen_level(self, level_obj: level.Level):
+        self.screen_level = level_obj
+
+    def run(self):
         while True:
             # debug level rendering
-            debug_level.update()
+            self.screen_level.update()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

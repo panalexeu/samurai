@@ -16,6 +16,9 @@ class Level:
     def __init__(self, surface, level_map):
         self.surface = surface
 
+        # Entrance system init
+        self.level_entrance = {'east': [], 'west': [], 'north': [], 'south': []}
+
         # Level sprites init (rendering ones)
         self.collision_sprites = pygame.sprite.Group()
         self.animating_sprites = pygame.sprite.Group()
@@ -45,10 +48,14 @@ class Level:
         self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
 
     def level_map_init(self, level_map):
+        level_width = len(level_map[0]) * 8
+        level_height = len(level_map) * 8
+
         for row_index, row in enumerate(level_map):
             for column_index, cell in enumerate(row):
-                x = column_index * 8
-                y = row_index * 8
+                # Centering the level map on the surface algorithm
+                x = column_index * 8 + ((constants.SURFACE_SIZE[0] - level_width) / 2)
+                y = row_index * 8 + ((constants.SURFACE_SIZE[1] - level_height) / 2)
 
                 if cell == '1':
                     self.collision_sprites.add(
@@ -69,6 +76,13 @@ class Level:
                         sprite.Sprite(
                             pos=(x, y),
                             image_path='game_core/sprites/castle/bamboo_trap.png'
+                        )
+                    )
+                elif cell == 'E':
+                    self.level_entrance['east'].append(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/transparent.png'
                         )
                     )
                 elif cell == 'C':
@@ -185,6 +199,16 @@ class Level:
                     # TODO IMPLEMENT SAVING LEVEL SCROLL
                     sprite_.save_position()
 
+    def entrance_collision(self):
+        for key in self.level_entrance:
+            for sprite_ in self.level_entrance[key]:
+                if sprite_.rect.colliderect(self.player.rect) and key == 'east':
+                    print(self.collision_sprites)
+                    self.player.reset_position((75, 0))
+                    self.collision_sprites.empty()
+                    print(self.collision_sprites)
+                    self.level_map_init(constants.TEST_CENTER_LEVEL)
+
     def get_all_sprite_groups(self):
         return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,
                                self.destroyable_sprites)
@@ -214,9 +238,6 @@ class Level:
     def update(self):
         self.surface.fill((0, 0, 10))
 
-        # Level scroll
-        # self.level_scroll()
-
         # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
         self.animating_sprites.draw(self.surface)
@@ -238,6 +259,9 @@ class Level:
         self.enemies_collisions()
         self.player_hit_collision()
         self.enemies_hit_collision()
+
+        # Entrance collision checking
+        self.entrance_collision()
 
         # Player handling and render
         self.player.update()
