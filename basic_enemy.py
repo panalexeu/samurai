@@ -9,6 +9,9 @@ class BasicEnemy(sprite.AnimatedSprite):
     def __init__(self, pos, direction, speed, image_path, anim_path, anim_states, anim_speed):
         super().__init__(pos, image_path, anim_path, anim_states, anim_speed)
 
+        # Souls amount
+        self.souls = 10
+
         # Directions
         self.direction = direction
 
