@@ -1,6 +1,6 @@
 import pygame
 
-import basic_enemy
+import enemy
 import bonfire
 import coin
 import constants
@@ -37,6 +37,9 @@ class Level:
 
         # Enemies init
         self.enemies = pygame.sprite.Group()
+
+        # Projectiles
+        self.projectiles = pygame.sprite.Group()
 
         # Player init
         self.player = player.Player(self.surface)
@@ -88,7 +91,7 @@ class Level:
                             anim_states={'idle': []},
                             anim_speed=0.1
                         )
-                    back_light_obj.randomize_frame_index(6)
+                    # back_light_obj.randomize_frame_index(6)
 
                     self.animating_sprites.add(back_light_obj)
 
@@ -140,9 +143,7 @@ class Level:
                     )
 
                     self.level_entrances['west'].append(
-                        sprite.Sprite(
-                            pos=(x, y),
-                            image_path='game_core/sprites/castle/transparent.png'
+                        sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png'
                         )
                     )
 
@@ -152,16 +153,17 @@ class Level:
 
                 # Enemies
                 elif cell == 'Y':
-                    self.enemies.add(basic_enemy.Yokai(pos=pos))
+                    self.enemies.add(enemy.Yokai(pos=pos))
                 elif cell == 'S':
-                    self.enemies.add(basic_enemy.Spider(pos=pos))
+                    self.enemies.add(enemy.Spider(pos=pos))
+                elif cell == 'Z':
+                    self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles))
 
                 # Interactive sprites
                 elif cell == 'B':
                     bonfire_ = bonfire.Bonfire(pos=pos)
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
-
 
     def clear_entrance_sprites(self):
         for value in self.level_entrances.values():
@@ -176,9 +178,10 @@ class Level:
         self.traps_sprites.empty()
         self.pickups.empty()
         self.enemies.empty()
+        self.projectiles.empty()
         self.clear_entrance_sprites()
 
-    # Not using anymore
+    # Not in use anymore
     def level_scroll(self):
         for sprite_ in self.collision_sprites:  # joins pickups and destroyable with collision sprites
             # x coordinate scrolling
@@ -235,19 +238,19 @@ class Level:
                     self.player.rect.left = sprite_.rect.right
 
     def enemies_collisions(self):
-        for enemy in self.enemies:
+        for enemy_ in self.enemies:
             for sprite_ in self.collision_sprites:
-                if sprite_.rect.colliderect(enemy.rect):
-                    if isinstance(enemy, basic_enemy.Yokai):
-                        if enemy.direction.x == 1:
-                            enemy.direction.x = -1
+                if sprite_.rect.colliderect(enemy_.rect):
+                    if isinstance(enemy_, enemy.Yokai):
+                        if enemy_.direction.x == 1:
+                            enemy_.direction.x = -1
                         else:
-                            enemy.direction.x = 1
-                    elif isinstance(enemy, basic_enemy.Spider):
-                        if enemy.direction.y == -1:
-                            enemy.direction.y = 1
+                            enemy_.direction.x = 1
+                    elif isinstance(enemy_, enemy.Spider):
+                        if enemy_.direction.y == -1:
+                            enemy_.direction.y = 1
                         else:
-                            enemy.direction.y = -1
+                            enemy_.direction.y = -1
 
     def pickups_collisions(self):
         collision = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided (coin, item, position)
@@ -310,6 +313,19 @@ class Level:
             if sprite_.rect.colliderect(self.player.rect):
                 self.player.death()
 
+    def projectiles_update(self):
+        for sprite_ in self.projectiles:
+            sprite_.update()
+
+    def projectiles_hit_collision(self):
+        for sprite_ in self.projectiles:
+            if sprite_.rect.colliderect(self.player.rect):
+                self.player.death()
+
+    def projectiles_destroy_collision(self):
+        for sprite_ in self.collision_sprites:
+            pygame.sprite.spritecollide(sprite_, self.projectiles, dokill=True)
+
     def player_hit_collision(self):
         if self.player.bamboo_stick_attack_state:
             pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
@@ -339,6 +355,12 @@ class Level:
         self.enemies_collisions()
         self.player_hit_collision()
         self.enemies_hit_collision()
+
+        # Projectiles handling
+        self.projectiles.draw(self.surface)
+        self.projectiles.update()
+        self.projectiles_hit_collision()
+        self.projectiles_destroy_collision()
 
         # Entrance collision checking
         self.entrance_collision()
