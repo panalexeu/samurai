@@ -6,6 +6,7 @@ import coin
 import constants
 import debug_console
 import level_system
+import main
 import player
 import sprite
 
@@ -53,7 +54,7 @@ class Level:
         self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
 
     # noinspection PyTypeChecker
-    def level_map_init(self, prev_direction):
+    def level_map_init(self, prev_direction=None):
         level_map = level_system.LEVEL_MAPS[self.level_map_key]
 
         level_width = len(level_map[0]) * 8
@@ -187,7 +188,7 @@ class Level:
 
                 # Interactive sprites
                 elif cell == 'B':
-                    bonfire_ = bonfire.Bonfire(pos=pos)
+                    bonfire_ = bonfire.Bonfire(pos=pos, level_key=self.level_map_key)
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
 
@@ -292,7 +293,7 @@ class Level:
     def traps_collision(self):
         for sprite_ in self.traps_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                self.player.death()
+                self.player_death()
 
     # TODO Implement hints system
     def interactive_sprites_collisions(self):
@@ -337,7 +338,7 @@ class Level:
     def enemies_hit_collision(self):
         for sprite_ in self.enemies:
             if sprite_.rect.colliderect(self.player.rect):
-                self.player.death()
+                self.player_death()
 
     def projectiles_update(self):
         for sprite_ in self.projectiles:
@@ -346,7 +347,7 @@ class Level:
     def projectiles_hit_collision(self):
         for sprite_ in self.projectiles:
             if sprite_.rect.colliderect(self.player.rect):
-                self.player.death()
+                self.player_death()
 
     def projectiles_destroy_collision(self):
         for sprite_ in self.collision_sprites:
@@ -355,6 +356,12 @@ class Level:
     def player_hit_collision(self):
         if self.player.bamboo_stick_attack_state:
             pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
+
+    def player_death(self):
+        self.clear_level_sprites()
+        self.player.reset_position(main.saves_database.get_player_position())
+        self.level_map_key = main.saves_database.get_player_level_position()
+        self.level_map_init()
 
     def update(self):
         self.surface.fill(self.level_background)

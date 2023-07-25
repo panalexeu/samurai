@@ -3,7 +3,7 @@ import sprite
 
 
 class Bonfire(sprite.AnimatedSprite):
-    def __init__(self, pos):
+    def __init__(self, pos, level_key):
         super().__init__(
             pos,
             image_path='game_core/sprites/animated_sprites/bonfire/inaction/bonfire_inaction.png',
@@ -11,6 +11,8 @@ class Bonfire(sprite.AnimatedSprite):
             anim_states={'inaction': [], 'action': []},
             anim_speed=0.1
         )
+
+        self.level_key = level_key
 
         self.state = 'inaction'
 
@@ -21,4 +23,4 @@ class Bonfire(sprite.AnimatedSprite):
         self.state = 'inaction'
 
     def save_position(self):
-        main.saves_database.set_player_position(self.rect.x, self.rect.y)
+        main.saves_database.set_player_position(self.rect.x, self.rect.y, self.level_key)

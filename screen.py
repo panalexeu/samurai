@@ -3,6 +3,7 @@ import pygame
 import level
 import constants
 import level_system
+import main
 
 
 class MainScreen:
@@ -13,7 +14,7 @@ class MainScreen:
         self.clock = pygame.time.Clock()
 
     def run(self):
-        screen_level = level.Level(self.surface, 'CENTER_LEVEL')
+        screen_level = level.Level(self.surface, main.saves_database.get_player_level_position())
 
         while True:
             # Screen level rendering

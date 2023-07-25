@@ -191,9 +191,6 @@ class Player(sprite.Sprite):
             self.direction.x = 0
             self.direction.y = 0
 
-    def death(self):
-        self.reset_position(main.saves_database.get_player_position())
-
     def print_items(self, surface):
         self.coins_text.display_text(text=f'coins: {self.coins}', surface=surface)
 
