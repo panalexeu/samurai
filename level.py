@@ -5,6 +5,7 @@ import bonfire
 import coin
 import constants
 import debug_console
+import bar
 import level_system
 import main
 import player
@@ -48,8 +49,12 @@ class Level:
         self.player_sprite = pygame.sprite.GroupSingle()
         self.player_sprite.add(self.player)
 
-        # Map init
-        self.level_map_init(None)
+        # Inventory and bars init
+        self.hp_bar = bar.HpBar((4, 4), self.surface)
+        self.stamina_bar = bar.StaminaBar((4, 9), self.surface)
+
+        # Level map init
+        self.level_map_init()
 
         # Console init
         self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
@@ -352,7 +357,7 @@ class Level:
     def enemies_hit_collision(self):
         for sprite_ in self.enemies:
             if sprite_.rect.colliderect(self.player.rect):
-                self.player_death()
+                self.player.hit()
 
     def projectiles_update(self):
         for sprite_ in self.projectiles:
@@ -361,7 +366,7 @@ class Level:
     def projectiles_hit_collision(self):
         for sprite_ in self.projectiles:
             if sprite_.rect.colliderect(self.player.rect):
-                self.player_death()
+                self.player.hit()
 
     def projectiles_destroy_collision(self):
         for sprite_ in self.collision_sprites:
@@ -374,8 +379,13 @@ class Level:
     def player_death(self):
         self.clear_level_sprites()
         self.player.reset_position(main.saves_database.get_player_position())
+        self.player.reset_stats()
         self.level_map_key = main.saves_database.get_player_level_position()
         self.level_map_init()
+
+    def check_player_death(self):
+        if self.player.hp <= 0:
+            self.player_death()
 
     def update(self):
         # Background drawing
@@ -421,8 +431,11 @@ class Level:
         self.player_horizontal_collisions()
         self.player_vertical_collisions()
         self.player_sprite.draw(self.surface)
-        # TODO: Player items (IN PROGRESS INVENTORY)
-        self.player.print_items(self.surface)
+        self.check_player_death()
+
+        # Inventory and bars
+        self.hp_bar.update(self.player.hp)
+        self.stamina_bar.update(self.player.stamina)
 
         # debug console
         self.level_console.update()

@@ -60,15 +60,28 @@ class Player(sprite.Sprite):
         self.bamboo_stick_attack_state = False
         self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
         self.bamboo_stick_attack_tick = 0
+        self.CONST_BAMBOO_STICK_LENGTH = 8
+        self.bamboo_stick_length = 0
 
         # Stun
         self.stun_state = False
         self.CONST_STUN_TICK = 100
         self.stun_tick = self.CONST_STUN_TICK
 
+        self.hit_state = False
+        self.CONST_HIT_TICK = 30
+        self.hit_tick = self.CONST_HIT_TICK
+
+        self.regen_state = False
+        self.CONST_REGEN_TICK = 150
+        self.regen_tick = self.CONST_REGEN_TICK
+
         # Stats
-        self.CONST_BAMBOO_STICK_LENGTH = 8
-        self.bamboo_stick_length = 0
+        self.CONST_HP = 3
+        self.hp = self.CONST_HP
+
+        self.CONST_STAMINA = 6
+        self.stamina = self.CONST_STAMINA
 
         # Items
         self.coins = 0
@@ -169,13 +182,11 @@ class Player(sprite.Sprite):
         if self.jump_state:
             self.jump_tick -= 1
             if self.jump_tick == self.CONST_JUMP_TICK - 15:
+                self.hit_stamina()
                 self.direction.y = 0
             elif self.jump_tick == 0:
                 self.jump_state = False
                 self.jump_tick = self.CONST_JUMP_TICK
-
-        if self.shift_state:
-            pass
 
         if self.stun_state:
             self.state = 'stun'
@@ -190,6 +201,40 @@ class Player(sprite.Sprite):
             self.direction.x = 0
             self.direction.y = 0
 
+        if self.hit_state:
+            self.hit_tick -= 1
+            if self.hit_tick == 0:
+                self.hit_state = False
+                self.hit_tick = self.CONST_HIT_TICK
+
+        if self.regen_state:
+            self.regen_tick -= 1
+            print(self.regen_tick)
+            if self.regen_tick == 0:
+                self.stamina += 1
+                self.regen_tick = self.CONST_REGEN_TICK
+                if self.stamina >= self.CONST_STAMINA:
+                    self.stamina = self.CONST_STAMINA
+                    self.regen_state = False
+
+    def reset_stats(self):
+        self.hp = self.CONST_HP
+        self.stamina = self.CONST_STAMINA
+
+    def hit(self):
+        if not self.hit_state:
+            self.hit_state = True
+            self.hp -= 1
+
+    def hit_stamina(self):
+        self.regen_state = True
+        self.stamina -= 1
+
+    def check_low_stamina(self):
+        print(self.stamina)
+        if self.stamina <= 0:
+            self.stun_state = True
+
     def print_items(self, surface):
         self.coins_text.display_text(text=f'coins: {self.coins}', surface=surface)
 
@@ -199,4 +244,5 @@ class Player(sprite.Sprite):
         self.animate()
         self.player_movement()
         self.anim_states_update()
+        self.check_low_stamina()
         self.states_update()
