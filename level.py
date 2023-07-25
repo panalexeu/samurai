@@ -81,19 +81,46 @@ class Level:
                             image_path='game_core/sprites/castle/brick_window.png'
                         )
                     )
+                elif cell == '3':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/brick_var.png'
+                        )
+                    )
+                elif cell == '9':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/brick_roof.png'
+                        )
+                    )
 
                 # Background sprites
-                elif cell == 'L':
-                    back_light_obj = sprite.AnimatedSprite(
+                elif cell == 'l':
+                    self.animating_sprites.add(
+                        sprite.AnimatedSprite(
                             pos=pos,
                             image_path='game_core/sprites/animated_sprites/back_light/idle/back_light1.png',
                             anim_path='game_core/sprites/animated_sprites/back_light',
                             anim_states={'idle': []},
                             anim_speed=0.1
                         )
-                    # back_light_obj.randomize_frame_index(6)
-
-                    self.animating_sprites.add(back_light_obj)
+                    )
+                elif cell == 'w':
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/wood_back.png'
+                        )
+                    )
+                elif cell == 'c':
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/chain_back.png'
+                        )
+                    )
 
                 # Destroyable
                 elif cell == 'D':
@@ -143,8 +170,7 @@ class Level:
                     )
 
                     self.level_entrances['west'].append(
-                        sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png'
-                        )
+                        sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png')
                     )
 
                 # Pickups

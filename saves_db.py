@@ -8,16 +8,18 @@ class SavesDatabase:
     PLAYER_POSITION_TABLE = """
         CREATE TABLE player_position(
             pos_x INTEGER,
-            pos_y INTEGER   
+            pos_y INTEGER,
+            level TEXT   
         )
     """
-
     GET_PLAYER_POSITION = "SELECT * FROM player_position"
-    INIT_PLAYER_POSITION = "INSERT INTO player_position VALUES(100, 0)"
+    INIT_PLAYER_POSITION = "INSERT INTO player_position VALUES(100, 0, 'CENTER_LEVEL')"
     SET_PLAYER_POSITION = "UPDATE player_position SET pos_x = ?, pos_y = ?"
 
     def get_player_position(self):
-        return self.run_query(query=self.GET_PLAYER_POSITION, fetch=True)[0]
+        position = self.run_query(query=self.GET_PLAYER_POSITION, fetch=True)[0]
+        return position[0], position[1]
+
 
     def set_player_position(self, pos_x, pos_y):
         return self.run_query(query=self.SET_PLAYER_POSITION, args=(pos_x, pos_y), commit=True)
