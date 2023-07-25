@@ -321,14 +321,9 @@ class Level:
 
                 # Bonfires handling
                 if isinstance(sprite_, bonfire.Bonfire):
-                    if self.player.prev_bonfire:
-                        self.player.prev_bonfire.set_inaction()
                     sprite_.set_action()
-                    self.player.prev_bonfire = sprite_
-
-                    # DEBUG
-                    # TODO IMPLEMENT SAVING LEVEL SCROLL
                     sprite_.save_position()
+                    self.player.reset_stats()
 
     def entrance_collision(self):
         for direction_key in self.level_entrances:

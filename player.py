@@ -95,9 +95,6 @@ class Player(sprite.Sprite):
             pos=(0, 0),
         )
 
-        # Other
-        self.prev_bonfire = None
-
     def get_input(self):
         # Pressed keys handling
         keys = pygame.key.get_pressed()
