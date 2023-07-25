@@ -7,6 +7,7 @@ import utils
 
 
 class Player(sprite.Sprite):
+    # noinspection PyTypeChecker
     def __init__(self, surface):
         super().__init__(
             pos=main.saves_database.get_player_position(),
@@ -45,14 +46,22 @@ class Player(sprite.Sprite):
         # Ticks and action states
         self.immovable_state = False
 
+        # Jump
         self.jump_state = False
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
 
+        # Shift
+        self.shift_state = False
+        self.CONST_SHIFT_TICK = 40
+        self.stun_tick = self.CONST_SHIFT_TICK
+
+        # Bamboo stick attack
         self.bamboo_stick_attack_state = False
         self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
         self.bamboo_stick_attack_tick = 0
 
+        # Stun
         self.stun_state = False
         self.CONST_STUN_TICK = 100
         self.stun_tick = self.CONST_STUN_TICK
@@ -99,6 +108,9 @@ class Player(sprite.Sprite):
         if keys[pygame.K_e]:
             self.bamboo_stick_attack_state = True
 
+        if keys[pygame.K_q]:
+            pass
+
     def player_movement(self):
         self.rect.x += self.direction.x * self.player_speed
         self.rect.y += self.direction.y * self.jump_speed + self.player_gravity
@@ -126,67 +138,54 @@ class Player(sprite.Sprite):
 
     def states_update(self):
         if self.bamboo_stick_attack_state:
-            self.lash_attack_handle()
+            self.state = 'bamboo_stick_attack'
+            self.immovable_state = True
+
+            if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
+                self.bamboo_stick_length += 2  # bamboo stick deploying speed
+
+            self.bamboo_stick_attack_tick += 1
+            if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
+                self.immovable_state = False
+                self.bamboo_stick_attack_state = False
+                self.bamboo_stick_attack_tick = 0
+                self.bamboo_stick_length = 0
+
+            # Handling bamboo stick render
+            bamboo_stick_color = (153, 229, 80)
+            if self.facing_right:
+                pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] + 6, self.rect.center[1] - 3),
+                                 (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 3))
+                # Handling attack box
+                self.attack_box.reset_position(
+                    (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 2))
+            else:
+                pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] - 6, self.rect.center[1] - 3),
+                                 (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 3))
+                # Handling attack box
+                self.attack_box.reset_position(
+                    (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 2))
 
         if self.jump_state:
-            self.jump_handle()
+            self.jump_tick -= 1
+            if self.jump_tick == self.CONST_JUMP_TICK - 15:
+                self.direction.y = 0
+            elif self.jump_tick == 0:
+                self.jump_state = False
+                self.jump_tick = self.CONST_JUMP_TICK
+
+        if self.shift_state:
+            pass
 
         if self.stun_state:
-            self.stun_handle()
+            self.state = 'stun'
+            self.stun_tick -= 1
+            self.immovable_state = True
+            if self.stun_tick == 0:
+                self.immovable_state = False
+                self.stun_state = False
+                self.stun_tick = self.CONST_STUN_TICK
 
-        if self.immovable_state:
-            self.immovable_state_handle()
-
-    def lash_attack_handle(self):
-        self.state = 'bamboo_stick_attack'
-        self.immovable_state = True
-
-        if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
-            self.bamboo_stick_length += 2  # bamboo stick deploying speed
-
-        self.bamboo_stick_attack_tick += 1
-        if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
-            self.immovable_state = False
-            self.bamboo_stick_attack_state = False
-            self.bamboo_stick_attack_tick = 0
-            self.bamboo_stick_length = 0
-
-        # Handling bamboo stick render
-        bamboo_stick_color = (153, 229, 80)
-        if self.facing_right:
-            pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] + 6, self.rect.center[1] - 3),
-                             (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 3))
-            # Handling attack box
-            self.attack_box.reset_position(
-                (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 2))
-        else:
-            pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] - 6, self.rect.center[1] - 3),
-                             (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 3))
-            # Handling attack box
-            self.attack_box.reset_position(
-                (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 2))
-
-        # Debug
-        # self.attack_box_sprite.draw(self.surface)
-
-    def jump_handle(self):
-        self.jump_tick -= 1
-        if self.jump_tick == self.CONST_JUMP_TICK - 15:
-            self.direction.y = 0
-        elif self.jump_tick == 0:
-            self.jump_state = False
-            self.jump_tick = self.CONST_JUMP_TICK
-
-    def stun_handle(self):
-        self.state = 'stun'
-        self.stun_tick -= 1
-        self.immovable_state = True
-        if self.stun_tick == 0:
-            self.immovable_state = False
-            self.stun_state = False
-            self.stun_tick = self.CONST_STUN_TICK
-
-    def immovable_state_handle(self):
         if self.immovable_state:
             self.direction.x = 0
             self.direction.y = 0

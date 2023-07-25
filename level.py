@@ -15,7 +15,7 @@ class Level:
     # noinspection PyTypeChecker
     def __init__(self, surface, level_map_key):
         self.surface = surface
-        self.level_background = (0, 0, 0)
+        self.background = (102, 57, 49)
         self.level_map_key = level_map_key
 
         # Entrance system init
@@ -23,6 +23,7 @@ class Level:
 
         # Level sprites init (rendering ones)
         self.collision_sprites = pygame.sprite.Group()
+        self.level_background_sprites = pygame.sprite.Group()
         self.background_sprites = pygame.sprite.Group()
         self.animating_sprites = pygame.sprite.Group()
         self.destroyable_sprites = pygame.sprite.Group()
@@ -57,15 +58,20 @@ class Level:
     def level_map_init(self, prev_direction=None):
         level_map = level_system.LEVEL_MAPS[self.level_map_key]
 
-        level_width = len(level_map[0]) * 8
-        level_height = len(level_map) * 8
+        max_x_len = max([len(row) for row in level_map])  # calculates the longest x row in the level map
+
+        shift_x = ((constants.SURFACE_SIZE[0] - max_x_len * 8) / 2)
+        shift_y = ((constants.SURFACE_SIZE[1] - len(level_map) * 8) / 2)
 
         for row_index, row in enumerate(level_map):
             for column_index, cell in enumerate(row):
                 # Centering the level map on the surface algorithm
-                x = column_index * 8 + ((constants.SURFACE_SIZE[0] - level_width) / 2)
-                y = row_index * 8 + ((constants.SURFACE_SIZE[1] - level_height) / 2)
+                x = column_index * 8 + shift_x
+                y = row_index * 8 + shift_y
                 pos = (x, y)
+
+                # Adding level background sprites
+                self.level_background_sprites.add(sprite.Sprite(pos=pos, size_x=8, size_y=8, color=(0, 0, 0)))
 
                 # Collision sprites
                 if cell == '1':
@@ -120,6 +126,13 @@ class Level:
                         sprite.Sprite(
                             pos=pos,
                             image_path='game_core/sprites/castle/chain_back.png'
+                        )
+                    )
+                elif cell == 'k':
+                    self.level_background_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/cage.png'
                         )
                     )
 
@@ -197,6 +210,7 @@ class Level:
             value.clear()
 
     def clear_level_sprites(self):
+        self.level_background_sprites.empty()
         self.collision_sprites.empty()
         self.background_sprites.empty()
         self.animating_sprites.empty()
@@ -364,7 +378,11 @@ class Level:
         self.level_map_init()
 
     def update(self):
-        self.surface.fill(self.level_background)
+        # Background drawing
+        self.surface.fill(self.background)
+
+        # Level background drawing
+        self.level_background_sprites.draw(self.surface)
 
         # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
