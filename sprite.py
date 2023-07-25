@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 import utils
@@ -60,3 +62,5 @@ class AnimatedSprite(Sprite):
 
         self.image = animation[int(self.frame_index)]
 
+    def randomize_frame_index(self, frames_amount):
+        self.frame_index = random.randrange(0, frames_amount)

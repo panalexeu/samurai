@@ -1,28 +1,37 @@
-import itertools
-
 import pygame
 
+import enemy
 import bonfire
 import coin
 import constants
 import debug_console
+import level_system
 import main
 import player
 import sprite
-import yokai
 
 
 class Level:
-    def __init__(self, surface, level_map):
+    # noinspection PyTypeChecker
+    def __init__(self, surface, level_map_key):
         self.surface = surface
+        self.level_background = (0, 0, 0)
+        self.level_map_key = level_map_key
+
+        # Entrance system init
+        self.level_entrances = {'east': [], 'west': [], 'north': [], 'south': []}
 
         # Level sprites init (rendering ones)
         self.collision_sprites = pygame.sprite.Group()
+        self.background_sprites = pygame.sprite.Group()
         self.animating_sprites = pygame.sprite.Group()
         self.destroyable_sprites = pygame.sprite.Group()
 
         # Interactive sprites
         self.interactive_sprites = pygame.sprite.Group()
+
+        # Traps init
+        self.traps_sprites = pygame.sprite.Group()
 
         # Pickups init
         self.pickups = pygame.sprite.Group()
@@ -30,44 +39,178 @@ class Level:
         # Enemies init
         self.enemies = pygame.sprite.Group()
 
+        # Projectiles
+        self.projectiles = pygame.sprite.Group()
+
         # Player init
         self.player = player.Player(self.surface)
         self.player_sprite = pygame.sprite.GroupSingle()
         self.player_sprite.add(self.player)
 
         # Map init
-        self.level_map_init(level_map)
+        self.level_map_init(None)
 
         # Console init
         self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
 
-    def level_map_init(self, level_map):
-        for row_index, row in enumerate(level_map):
-            for column_index, column in enumerate(row):
-                x = column_index * 8
-                y = row_index * 8
+    # noinspection PyTypeChecker
+    def level_map_init(self, prev_direction=None):
+        level_map = level_system.LEVEL_MAPS[self.level_map_key]
 
-                if column == '1':
+        level_width = len(level_map[0]) * 8
+        level_height = len(level_map) * 8
+
+        for row_index, row in enumerate(level_map):
+            for column_index, cell in enumerate(row):
+                # Centering the level map on the surface algorithm
+                x = column_index * 8 + ((constants.SURFACE_SIZE[0] - level_width) / 2)
+                y = row_index * 8 + ((constants.SURFACE_SIZE[1] - level_height) / 2)
+                pos = (x, y)
+
+                # Collision sprites
+                if cell == '1':
                     self.collision_sprites.add(
                         sprite.Sprite(
-                            pos=(x, y),
-                            image_path='game_core/sprites/level_1/brick.png'
+                            pos=pos,
+                            image_path='game_core/sprites/castle/brick.png'
                         )
-                    )  # had some problems with that line
-                elif column == 'C':
-                    self.pickups.add(coin.Coin(pos=(x, y)))
-                elif column == 'Y':
-                    self.enemies.add(yokai.Yokai(pos=(x, y)))
-                elif column == 'B':
-                    bonfire_ = bonfire.Bonfire(pos=(x, y))
+                    )
+                elif cell == '2':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/brick_window.png'
+                        )
+                    )
+                elif cell == '3':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/brick_var.png'
+                        )
+                    )
+                elif cell == '9':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/brick_roof.png'
+                        )
+                    )
+
+                # Background sprites
+                elif cell == 'l':
+                    self.animating_sprites.add(
+                        sprite.AnimatedSprite(
+                            pos=pos,
+                            image_path='game_core/sprites/animated_sprites/back_light/idle/back_light1.png',
+                            anim_path='game_core/sprites/animated_sprites/back_light',
+                            anim_states={'idle': []},
+                            anim_speed=0.1
+                        )
+                    )
+                elif cell == 'w':
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/wood_back.png'
+                        )
+                    )
+                elif cell == 'c':
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/chain_back.png'
+                        )
+                    )
+
+                # Destroyable
+                elif cell == 'D':
+                    self.destroyable_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/old_brick.png'
+                        )
+                    )
+
+                # Traps
+                elif cell == 'T':
+                    self.traps_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/bamboo_trap.png'
+                        )
+                    )
+
+                # Entrances
+                elif cell == 'E':
+                    if prev_direction == 'west':
+                        self.player.reset_position(pos=(x + 11, y))
+
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/brick_door.png'
+                        )
+                    )
+
+                    self.level_entrances['east'].append(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/transparent.png'
+                        )
+                    )
+                elif cell == 'W':
+                    if prev_direction == 'east':
+                        self.player.reset_position(pos=(x - 11, y))
+
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/brick_door.png'
+                        )
+                    )
+
+                    self.level_entrances['west'].append(
+                        sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png')
+                    )
+
+                # Pickups
+                elif cell == 'C':
+                    self.pickups.add(coin.Coin(pos=pos))
+
+                # Enemies
+                elif cell == 'Y':
+                    self.enemies.add(enemy.Yokai(pos=pos))
+                elif cell == 'S':
+                    self.enemies.add(enemy.Spider(pos=pos))
+                elif cell == 'Z':
+                    self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles))
+
+                # Interactive sprites
+                elif cell == 'B':
+                    bonfire_ = bonfire.Bonfire(pos=pos, level_key=self.level_map_key)
                     self.animating_sprites.add(bonfire_)
                     self.interactive_sprites.add(bonfire_)
-                # elif column == 'P':
-                #     # self.player.reset_position((x, y))
-                #     self.player_sprite.add(self.player)
 
+    def clear_entrance_sprites(self):
+        for value in self.level_entrances.values():
+            value.clear()
+
+    def clear_level_sprites(self):
+        self.collision_sprites.empty()
+        self.background_sprites.empty()
+        self.animating_sprites.empty()
+        self.destroyable_sprites.empty()
+        self.interactive_sprites.empty()
+        self.traps_sprites.empty()
+        self.pickups.empty()
+        self.enemies.empty()
+        self.projectiles.empty()
+        self.clear_entrance_sprites()
+
+    # Not in use anymore
     def level_scroll(self):
-        for sprite_ in self.get_all_sprite_groups():  # joins pickups and destroyable with collision sprites
+        for sprite_ in self.collision_sprites:  # joins pickups and destroyable with collision sprites
             # x coordinate scrolling
             indent_x = constants.SURFACE_SIZE[0] / 4
             if self.player.rect.x < indent_x and self.player.direction.x < 0:
@@ -121,23 +264,36 @@ class Level:
                 ):
                     self.player.rect.left = sprite_.rect.right
 
-    def yokai_vertical_collision(self):
-        for enemy in self.enemies:
+    def enemies_collisions(self):
+        for enemy_ in self.enemies:
             for sprite_ in self.collision_sprites:
-                if sprite_.rect.colliderect(enemy.rect):
-                    if enemy.direction.x == 1:
-                        enemy.direction.x = -1
-                    else:
-                        enemy.direction.x = 1
+                if sprite_.rect.colliderect(enemy_.rect):
+                    if isinstance(enemy_, enemy.Yokai):
+                        if enemy_.direction.x == 1:
+                            enemy_.direction.x = -1
+                        else:
+                            enemy_.direction.x = 1
+                    elif isinstance(enemy_, enemy.Spider):
+                        if enemy_.direction.y == -1:
+                            enemy_.direction.y = 1
+                        else:
+                            enemy_.direction.y = -1
 
     def pickups_collisions(self):
-        collision = pygame.sprite.spritecollide(self.player, self.pickups,
-                                                dokill=True)  # here is possible to check with which object u collided (coin, item, posion)
+        collision = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided (coin, item, position)
 
         if len(collision) > 0:
             collision_obj = collision[0]
             if isinstance(collision_obj, coin.Coin):
                 self.player.coins += 1
+
+    def destroyable_sprites_collision(self):
+        pygame.sprite.spritecollide(self.player, self.destroyable_sprites, dokill=True)
+
+    def traps_collision(self):
+        for sprite_ in self.traps_sprites:
+            if sprite_.rect.colliderect(self.player.rect):
+                self.player_death()
 
     # TODO Implement hints system
     def interactive_sprites_collisions(self):
@@ -155,9 +311,16 @@ class Level:
                     # TODO IMPLEMENT SAVING LEVEL SCROLL
                     sprite_.save_position()
 
-    def get_all_sprite_groups(self):
-        return itertools.chain(self.collision_sprites, self.animating_sprites, self.pickups,
-                               self.destroyable_sprites)
+    def entrance_collision(self):
+        for direction_key in self.level_entrances:
+            for sprite_ in self.level_entrances[direction_key]:
+                if sprite_.rect.colliderect(self.player.rect):
+                    if direction_key == 'east':
+                        self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
+                    elif direction_key == 'west':
+                        self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
+                    self.clear_level_sprites()
+                    self.level_map_init(direction_key)
 
     def animate_sprites(self):
         for spite_ in self.animating_sprites:
@@ -172,38 +335,68 @@ class Level:
         for sprite_ in self.enemies:
             sprite_.update()
 
+    def enemies_hit_collision(self):
+        for sprite_ in self.enemies:
+            if sprite_.rect.colliderect(self.player.rect):
+                self.player_death()
+
+    def projectiles_update(self):
+        for sprite_ in self.projectiles:
+            sprite_.update()
+
+    def projectiles_hit_collision(self):
+        for sprite_ in self.projectiles:
+            if sprite_.rect.colliderect(self.player.rect):
+                self.player_death()
+
+    def projectiles_destroy_collision(self):
+        for sprite_ in self.collision_sprites:
+            pygame.sprite.spritecollide(sprite_, self.projectiles, dokill=True)
+
     def player_hit_collision(self):
         if self.player.bamboo_stick_attack_state:
             pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
 
-    def enemies_hit_collision(self):
-        for sprite_ in self.enemies:
-            if sprite_.rect.colliderect(self.player.rect):
-                self.player.death()
+    def player_death(self):
+        self.clear_level_sprites()
+        self.player.reset_position(main.saves_database.get_player_position())
+        self.level_map_key = main.saves_database.get_player_level_position()
+        self.level_map_init()
 
     def update(self):
-        self.surface.fill((0, 0, 10))
-
-        # Level scroll
-        # self.level_scroll()
+        self.surface.fill(self.level_background)
 
         # Level sprites render and animations
         self.collision_sprites.draw(self.surface)
+        self.background_sprites.draw(self.surface)
         self.animating_sprites.draw(self.surface)
+        self.destroyable_sprites.draw(self.surface)
+        self.traps_sprites.draw(self.surface)
         self.pickups.draw(self.surface)
         self.animate_sprites()
         self.animate_pickups()
 
         # Level objects collisions handling
         self.pickups_collisions()
+        self.traps_collision()
+        self.destroyable_sprites_collision()
         self.interactive_sprites_collisions()
 
         # Enemies handling
         self.enemies.draw(self.surface)
         self.enemies_update()
-        self.yokai_vertical_collision()
+        self.enemies_collisions()
         self.player_hit_collision()
         self.enemies_hit_collision()
+
+        # Projectiles handling
+        self.projectiles.draw(self.surface)
+        self.projectiles.update()
+        self.projectiles_hit_collision()
+        self.projectiles_destroy_collision()
+
+        # Entrance collision checking
+        self.entrance_collision()
 
         # Player handling and render
         self.player.update()

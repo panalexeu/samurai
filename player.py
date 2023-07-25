@@ -50,7 +50,7 @@ class Player(sprite.Sprite):
         self.jump_tick = self.CONST_JUMP_TICK
 
         self.bamboo_stick_attack_state = False
-        self.CONST_BAMBOO_STICK_ATTACK_TICK = 40
+        self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
         self.bamboo_stick_attack_tick = 0
 
         self.stun_state = False
@@ -142,7 +142,7 @@ class Player(sprite.Sprite):
         self.immovable_state = True
 
         if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
-            self.bamboo_stick_length += 1
+            self.bamboo_stick_length += 2  # bamboo stick deploying speed
 
         self.bamboo_stick_attack_tick += 1
         if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
@@ -190,9 +190,6 @@ class Player(sprite.Sprite):
         if self.immovable_state:
             self.direction.x = 0
             self.direction.y = 0
-
-    def death(self):
-        self.reset_position(main.saves_database.get_player_position())
 
     def print_items(self, surface):
         self.coins_text.display_text(text=f'coins: {self.coins}', surface=surface)
