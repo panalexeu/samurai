@@ -10,6 +10,7 @@ LEVEL_MAPS = {
         'E000B01kk100W',
         '1111111111111',
     ),
+
     'TRAPS_EAST': (
         '111111113111111111111111',
         '10000000c000030000000001',
@@ -25,6 +26,7 @@ LEVEL_MAPS = {
         '1111100000001Y00000Y1111',
         '11111TTTTTTT111111111111'
     ),
+
     'BRIDGE': (
         '1111111111111111111111111',
         '1111111111111111111111111',
@@ -49,6 +51,7 @@ LEVEL_MAPS = {
         '4000100010001000400010001',
         '4TTT1TTT1TTT1TTT4TTT1TTT1',
     ),
+
     'TOWER': (
         '1111111111',
         '1111111111',
@@ -72,6 +75,7 @@ LEVEL_MAPS = {
         '100000000W',
         '1111111111',
     ),
+
     'SEWER_ENTER': (
         '4411113113113111',
         '400c00c00c00cN01',
@@ -87,6 +91,15 @@ LEVEL_MAPS = {
         '12144Y0000041214',
         '1111144111441144'
     ),
+
+    'SEWER_BOTTOM': (
+        '0000000N0',
+        '000000000',
+        '000000000',
+        't00000000',
+        'ss1111111',
+    ),
+
     'YARD': (
         '11111111111111111',
         '11kkk3kkkk3kkkk11',
@@ -109,7 +122,8 @@ LEVEL_ADJACENCY_MAP = {
     'TRAPS_EAST': {'west': 'PRISON_CAGE', 'east': 'TOWER'},
     'TOWER': {'west': 'TRAPS_EAST'},
     'BRIDGE': {'east': 'PRISON_CAGE', 'west': 'SEWER_ENTER'},
-    'SEWER_ENTER': {'east': 'BRIDGE', 'north': 'YARD'},
+    'SEWER_ENTER': {'east': 'BRIDGE', 'north': 'YARD', 'south': 'SEWER_BOTTOM'},
+    'SEWER_BOTTOM': {'north': 'SEWER_ENTER'},
     'YARD': {'south': 'SEWER_ENTER'}
 }
 
@@ -119,5 +133,6 @@ LEVEL_COLOR = {
     'BRIDGE': (0, 0, 0),
     'TOWER': (0, 0, 0),
     'SEWER_ENTER': (0, 0, 0),
+    'SEWER_BOTTOM': (0, 0, 0),
     'YARD': (95, 205, 228)
 }

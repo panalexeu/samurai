@@ -145,11 +145,14 @@ class Level:
                             anim_speed=0.1
                         )
                     )
-                elif cell == 'w':
-                    self.background_sprites.add(
-                        sprite.Sprite(
+                elif cell == 't':
+                    self.animating_sprites.add(
+                        sprite.AnimatedSprite(
                             pos=pos,
-                            image_path='game_core/sprites/castle/wood_back.png'
+                            image_path='game_core/sprites/animated_sprites/sewer_tube/idle/sewer_tube1.png',
+                            anim_path='game_core/sprites/animated_sprites/sewer_tube',
+                            anim_states={'idle': []},
+                            anim_speed=0.1
                         )
                     )
                 elif cell == 'c':
@@ -182,6 +185,13 @@ class Level:
                         sprite.Sprite(
                             pos=pos,
                             image_path='game_core/sprites/castle/spikes.png'
+                        )
+                    )
+                elif cell == 's':
+                    self.traps_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/sewer_water.png'
                         )
                     )
 
