@@ -37,9 +37,7 @@ class Enemy(sprite.AnimatedSprite):
 
 
 class ShootingSkeleton(Enemy):
-    def __init__(self, pos, level_projectiles: pygame.sprite.Group):
-        self.pos = pos
-
+    def __init__(self, pos, level_projectiles: pygame.sprite.Group, rotation=True):
         super().__init__(
             pos=pos,
             direction=pygame.math.Vector2(0, 0),
@@ -50,7 +48,16 @@ class ShootingSkeleton(Enemy):
             anim_speed=0.1
         )
 
+        self.pos = pos
         self.level_projectiles = level_projectiles
+        self.rotation = rotation
+
+        if self.rotation:
+            self.proj_pos = (pos[0] + 8, pos[1] - 1)
+            self.proj_direction = pygame.math.Vector2(1, 0)
+        else:
+            self.proj_pos = (pos[0], pos[1] - 1)
+            self.proj_direction = pygame.math.Vector2(-1, 0)
 
         self.shooting_state = False
         self.CONST_SHOOTING_TICK = 50
@@ -58,7 +65,11 @@ class ShootingSkeleton(Enemy):
 
     def animate(self):
         super().animate()
-        self.image = self.get_image()
+        image = self.get_image()
+        if self.rotation:
+            self.image = pygame.transform.flip(image, flip_x=True, flip_y=False)
+        else:
+            self.image = image
 
     # noinspection PyTypeChecker
     def shoot(self):
@@ -66,10 +77,10 @@ class ShootingSkeleton(Enemy):
             # Spawning a projectile
             self.level_projectiles.add(
                 projectile.Projectile(
-                    pos=(self.pos[0], self.pos[1] - 1),
+                    pos=self.proj_pos,
                     image_path='game_core/sprites/projectiles/skeleton_projectile/skeleton_projectile.png',
                     speed=1,
-                    direction=pygame.math.Vector2(-1, 0)
+                    direction=self.proj_direction
                 )
             )
 

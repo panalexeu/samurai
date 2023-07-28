@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 import enemy
@@ -17,6 +19,7 @@ class Level:
     def __init__(self, surface, level_map_key):
         self.surface = surface
         self.background = (102, 57, 49)
+        self.level_background = level_system.LEVEL_COLOR[level_map_key]
         self.level_map_key = level_map_key
 
         # Entrance system init
@@ -76,7 +79,9 @@ class Level:
                 pos = (x, y)
 
                 # Adding level background sprites
-                self.level_background_sprites.add(sprite.Sprite(pos=pos, size_x=8, size_y=8, color=(0, 0, 0)))
+                if cell != ' ':
+                    self.level_background_sprites.add(
+                        sprite.Sprite(pos=pos, size_x=8, size_y=8, color=self.level_background))
 
                 # Collision sprites
                 if cell == '1':
@@ -100,11 +105,32 @@ class Level:
                             image_path='game_core/sprites/castle/brick_var.png'
                         )
                     )
+                elif cell == '4':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/old_brick.png'
+                        )
+                    )
                 elif cell == '9':
                     self.collision_sprites.add(
                         sprite.Sprite(
                             pos=pos,
                             image_path='game_core/sprites/castle/brick_roof.png'
+                        )
+                    )
+                elif cell == '_':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/grass.png'
+                        )
+                    )
+                elif cell == '+':
+                    self.collision_sprites.add(
+                        sprite.Sprite(
+                            pos=pos,
+                            image_path='game_core/sprites/castle/dirt.png'
                         )
                     )
 
@@ -155,7 +181,7 @@ class Level:
                     self.traps_sprites.add(
                         sprite.Sprite(
                             pos=pos,
-                            image_path='game_core/sprites/castle/bamboo_trap.png'
+                            image_path='game_core/sprites/castle/spikes.png'
                         )
                     )
 
@@ -191,6 +217,34 @@ class Level:
                     self.level_entrances['west'].append(
                         sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png')
                     )
+                elif cell == 'N':
+                    if prev_direction == 'south':
+                        self.player.reset_position(pos=(x, y + 11))
+
+                    tube_north_sprite = sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/tube.png')
+                    tube_north_sprite.flip(y=True)
+
+                    self.background_sprites.add(
+                        tube_north_sprite
+                    )
+
+                    self.level_entrances['north'].append(
+                        sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png')
+                    )
+                elif cell == 'S':
+                    if prev_direction == 'north':
+                        self.player.reset_position(pos=(x - 11, y - 11))
+
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/tube.png'
+                        )
+                    )
+
+                    self.level_entrances['south'].append(
+                        sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png')
+                    )
 
                 # Pickups
                 elif cell == 'C':
@@ -199,10 +253,12 @@ class Level:
                 # Enemies
                 elif cell == 'Y':
                     self.enemies.add(enemy.Yokai(pos=pos))
-                elif cell == 'S':
+                elif cell == 'P':
                     self.enemies.add(enemy.Spider(pos=pos))
-                elif cell == 'Z':
+                elif cell == '>':
                     self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles))
+                elif cell == '<':
+                    self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles, rotation=False))
 
                 # Interactive sprites
                 elif cell == 'B':
@@ -226,39 +282,6 @@ class Level:
         self.enemies.empty()
         self.projectiles.empty()
         self.clear_entrance_sprites()
-
-    # Not in use anymore
-    def level_scroll(self):
-        for sprite_ in self.collision_sprites:  # joins pickups and destroyable with collision sprites
-            # x coordinate scrolling
-            indent_x = constants.SURFACE_SIZE[0] / 4
-            if self.player.rect.x < indent_x and self.player.direction.x < 0:
-                self.player.player_speed = 0
-                scroll_x = self.player.CONST_PLAYER_SPEED
-            elif self.player.rect.x > constants.SURFACE_SIZE[0] - indent_x and self.player.direction.x > 0:
-                self.player.player_speed = 0
-                scroll_x = -self.player.CONST_PLAYER_SPEED
-            else:
-                scroll_x = 0
-                self.player.player_speed = self.player.CONST_PLAYER_SPEED
-
-            # y coordinate scrolling
-            indent_y = constants.SURFACE_SIZE[1] / 3
-            if self.player.rect.y < indent_y and self.player.direction.y < 0:
-                self.player.jump_speed = 0
-                self.player.player_gravity = 0
-                scroll_y = self.player.CONST_JUMP_SPEED - self.player.CONST_PLAYER_GRAVITY
-            elif self.player.rect.y > constants.SURFACE_SIZE[1] - indent_y and self.player.direction.y >= 0:
-                self.player.jump_speed = 0
-                self.player.player_gravity = 0
-                scroll_y = -self.player.CONST_PLAYER_GRAVITY
-            else:
-                scroll_y = 0
-                self.player.player_gravity = self.player.CONST_PLAYER_GRAVITY
-                self.player.jump_speed = self.player.CONST_JUMP_SPEED
-
-            # applying scrolling
-            sprite_.shift(scroll_x, scroll_y)
 
     def player_vertical_collisions(self):
         for sprite_ in self.collision_sprites:
@@ -318,7 +341,6 @@ class Level:
     def interactive_sprites_collisions(self):
         for sprite_ in self.interactive_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-
                 # Bonfires handling
                 if isinstance(sprite_, bonfire.Bonfire):
                     sprite_.set_action()
@@ -329,10 +351,8 @@ class Level:
         for direction_key in self.level_entrances:
             for sprite_ in self.level_entrances[direction_key]:
                 if sprite_.rect.colliderect(self.player.rect):
-                    if direction_key == 'east':
-                        self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
-                    elif direction_key == 'west':
-                        self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
+                    self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
+                    self.level_background = level_system.LEVEL_COLOR[self.level_map_key]
                     self.clear_level_sprites()
                     self.level_map_init(direction_key)
 
@@ -373,9 +393,10 @@ class Level:
 
     def player_death(self):
         self.clear_level_sprites()
-        self.player.reset_position(main.saves_database.get_player_position())
         self.player.reset_stats()
+        self.player.reset_position(main.saves_database.get_player_position())
         self.level_map_key = main.saves_database.get_player_level_position()
+        self.level_background = level_system.LEVEL_COLOR[self.level_map_key]
         self.level_map_init()
 
     def check_player_death(self):

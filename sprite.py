@@ -24,6 +24,9 @@ class Sprite(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(bottomleft=pos)
 
+    def flip(self, x=False, y=False):
+        self.image = pygame.transform.flip(self.image, flip_x=x, flip_y=y)
+
     def reset_position(self, pos):
         self.rect = self.image.get_rect(bottomleft=pos)
 

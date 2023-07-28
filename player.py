@@ -206,7 +206,6 @@ class Player(sprite.Sprite):
 
         if self.regen_state:
             self.regen_tick -= 1
-            print(self.regen_tick)
             if self.regen_tick == 0:
                 self.stamina += 1
                 self.regen_tick = self.CONST_REGEN_TICK
@@ -228,7 +227,6 @@ class Player(sprite.Sprite):
         self.stamina -= 1
 
     def check_low_stamina(self):
-        print(self.stamina)
         if self.stamina <= 0:
             self.stun_state = True
 
