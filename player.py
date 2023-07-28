@@ -77,7 +77,7 @@ class Player(sprite.Sprite):
         self.regen_tick = self.CONST_REGEN_TICK
 
         # Stats
-        self.CONST_HP = 3
+        self.CONST_HP = 50
         self.hp = self.CONST_HP
 
         self.CONST_STAMINA = 6

@@ -187,7 +187,7 @@ class Level:
                             image_path='game_core/sprites/castle/spikes.png'
                         )
                     )
-                elif cell == 's':
+                elif cell == 'w':
                     self.traps_sprites.add(
                         sprite.Sprite(
                             pos=pos,
@@ -244,6 +244,20 @@ class Level:
                 elif cell == 'S':
                     if prev_direction == 'north':
                         self.player.reset_position(pos=(x - 11, y - 11))
+
+                    self.background_sprites.add(
+                        sprite.Sprite(
+                            pos=(x, y),
+                            image_path='game_core/sprites/castle/tube.png'
+                        )
+                    )
+
+                    self.level_entrances['south'].append(
+                        sprite.Sprite(pos=(x, y), image_path='game_core/sprites/castle/transparent.png')
+                    )
+                elif cell == 's':
+                    if prev_direction == 'north':
+                        self.player.reset_position(pos=(x + 11, y - 11))
 
                     self.background_sprites.add(
                         sprite.Sprite(
