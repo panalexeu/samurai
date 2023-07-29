@@ -1,15 +1,13 @@
-import random
-
 import pygame
 
-import enemy
+import bar
 import bonfire
-import coin
 import constants
 import debug_console
-import bar
+import enemy
 import level_system
 import main
+import pickups
 import player
 import sprite
 
@@ -53,8 +51,9 @@ class Level:
         self.player_sprite.add(self.player)
 
         # Inventory and bars init
-        self.hp_bar = bar.HpBar((4, 4), self.surface)
-        self.stamina_bar = bar.StaminaBar((4, 9), self.surface)
+        self.hp_bar = bar.HpBar((14, 2), self.surface)
+        self.stamina_bar = bar.StaminaBar((14, 8), self.surface)
+        self.potion_bar = bar.PotionBar((2, 2), self.surface)
 
         # Level map init
         self.level_map_init()
@@ -272,7 +271,11 @@ class Level:
 
                 # Pickups
                 elif cell == 'C':
-                    self.pickups.add(coin.Coin(pos=pos))
+                    self.pickups.add(pickups.Coin(pos=pos))
+                elif cell == 'g':
+                    self.pickups.add(
+                        pickups.AntiGravityPotion(pos=pos, image_path='game_core/sprites/castle/antigravity_potion.png',
+                                                  player=self.player))
 
                 # Enemies
                 elif cell == 'Y':
@@ -310,7 +313,7 @@ class Level:
     def player_vertical_collisions(self):
         for sprite_ in self.collision_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                if self.player.direction.y < 0 and self.player.rect.y > sprite_.rect.y:
+                if (self.player.direction.y < 0 or self.player.player_gravity < 0) and self.player.rect.y > sprite_.rect.y:
                     self.player.rect.top = sprite_.rect.bottom
                     self.player.direction.y = 0
                 elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
@@ -350,8 +353,10 @@ class Level:
 
         if len(collision) > 0:
             collision_obj = collision[0]
-            if isinstance(collision_obj, coin.Coin):
+            if isinstance(collision_obj, pickups.Coin):
                 self.player.coins += 1
+            elif isinstance(collision_obj, pickups.AntiGravityPotion):
+                self.player.potion = collision_obj
 
     def destroyable_sprites_collision(self):
         pygame.sprite.spritecollide(self.player, self.destroyable_sprites, dokill=True)
@@ -476,6 +481,7 @@ class Level:
         # Inventory and bars
         self.hp_bar.update(self.player.hp)
         self.stamina_bar.update(self.player.stamina)
+        self.potion_bar.update(self.player.potion)
 
         # debug console
         self.level_console.update()

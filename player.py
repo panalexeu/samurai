@@ -1,6 +1,7 @@
 import pygame
 
 import main
+import pickups
 import sprite
 import text
 import utils
@@ -51,11 +52,6 @@ class Player(sprite.Sprite):
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
 
-        # Shift
-        self.shift_state = False
-        self.CONST_SHIFT_TICK = 40
-        self.stun_tick = self.CONST_SHIFT_TICK
-
         # Bamboo stick attack
         self.bamboo_stick_attack_state = False
         self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
@@ -76,6 +72,10 @@ class Player(sprite.Sprite):
         self.CONST_REGEN_TICK = 150
         self.regen_tick = self.CONST_REGEN_TICK
 
+        # Potions
+        self.potion_state = False
+        self.potion_tick = 0
+
         # Stats
         self.CONST_HP = 50
         self.hp = self.CONST_HP
@@ -85,6 +85,7 @@ class Player(sprite.Sprite):
 
         # Items
         self.coins = 0
+        self.potion = None
 
         # TODO CURRENTLY JUST FOR DEBUGGING
         # Inventory handling
@@ -115,11 +116,14 @@ class Player(sprite.Sprite):
         else:
             self.direction.y = 0
 
+        # Bamboo stick attack
         if keys[pygame.K_e]:
             self.bamboo_stick_attack_state = True
 
-        if keys[pygame.K_q]:
-            pass
+        # Potion usage
+        if keys[pygame.K_c]:
+            if self.potion:
+                self.potion_state = True
 
     def player_movement(self):
         self.rect.x += self.direction.x * self.player_speed
@@ -212,6 +216,15 @@ class Player(sprite.Sprite):
                 if self.stamina >= self.CONST_STAMINA:
                     self.stamina = self.CONST_STAMINA
                     self.regen_state = False
+
+        if self.potion_state:
+            self.potion_tick += 1
+            self.potion.apply_effect()
+            if self.potion_tick == self.potion.duration:
+                self.potion.stop_effect()
+                self.potion_tick = 0
+                self.potion_state = False
+                self.potion = None
 
     def reset_stats(self):
         self.hp = self.CONST_HP

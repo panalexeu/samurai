@@ -1,5 +1,19 @@
 import pygame
 
+import pickups
+
+
+class PotionBar:
+    def __init__(self, pos, surface):
+        self.pos = pos
+        self.image = pygame.image.load('game_core/sprites/icons/potion_bar.png')
+        self.surface = surface
+
+    def update(self, potion: pickups.AntiGravityPotion):
+        self.surface.blit(self.image, self.pos)
+        if potion:
+            self.surface.blit(potion.image, (self.pos[0] + 1, self.pos[1] + 1))
+
 
 class Bar:
     def __init__(self, pos, surface, bar_img, shift):
