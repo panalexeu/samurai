@@ -24,11 +24,12 @@ class AntiGravityPotion(sprite.Sprite):
         )
 
         self.player = player
-        self.duration = 200
+        self.duration = 150
 
     def apply_effect(self):
         self.player.player_gravity = -1
         self.player.jump_speed = -3
+        self.player.image = pygame.transform.flip(self.player.image, flip_y=True, flip_x=False)
 
     def stop_effect(self):
         self.player.player_gravity = self.player.CONST_PLAYER_GRAVITY

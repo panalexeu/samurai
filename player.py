@@ -224,7 +224,7 @@ class Player(sprite.Sprite):
                 self.potion.stop_effect()
                 self.potion_tick = 0
                 self.potion_state = False
-                self.potion = None
+                # self.potion = None
 
     def reset_stats(self):
         self.hp = self.CONST_HP
