@@ -16,9 +16,15 @@ class Level:
     # noinspection PyTypeChecker
     def __init__(self, surface, level_map_key):
         self.surface = surface
+        self.level_map_key = level_map_key
+
+        # Level backgrounds
         self.background = (102, 57, 49)
         self.level_background = level_system.LEVEL_COLOR[level_map_key]
-        self.level_map_key = level_map_key
+
+        # # Level music handling
+        # pygame.mixer.music.load('game_core/sounds/castle_theme.mp3')
+        # pygame.mixer.music.play(-1)
 
         # Entrance system init
         self.level_entrances = {'east': [], 'west': [], 'north': [], 'south': []}
@@ -370,6 +376,7 @@ class Level:
             collision_obj = collision[0]
             if isinstance(collision_obj, pickups.Coin):
                 self.player.coins += 1
+                pygame.mixer.Sound('game_core/sounds/coin_pickup.wav').play()
             elif isinstance(collision_obj, pickups.AntiGravityPotion):
                 self.player.potion = collision_obj
             elif isinstance(collision_obj, pickups.HpMushroom):

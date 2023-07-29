@@ -110,6 +110,7 @@ class Player(sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             if not self.jump_state:
+                pygame.mixer.Sound('game_core/sounds/jump.wav').play()
                 self.direction.y = -1
                 self.jump_state = True
         else:
@@ -117,11 +118,13 @@ class Player(sprite.Sprite):
 
         # Bamboo stick attack
         if keys[pygame.K_e]:
+            pygame.mixer.Sound('game_core/sounds/hit.wav').play()
             self.bamboo_stick_attack_state = True
 
         # Potion usage
         if keys[pygame.K_c]:
-            if self.potion:
+            if self.potion and not self.potion_state:
+                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
                 self.potion_state = True
 
     def player_movement(self):
@@ -155,7 +158,7 @@ class Player(sprite.Sprite):
             self.immovable_state = True
 
             if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
-                self.bamboo_stick_length += 2  # bamboo stick deploying speed
+                self.bamboo_stick_length += 1  # bamboo stick deploying speed
 
             self.bamboo_stick_attack_tick += 1
             if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
@@ -248,6 +251,7 @@ class Player(sprite.Sprite):
 
     def hit(self):
         if not self.hit_state:
+            pygame.mixer.Sound('game_core/sounds/explosion.wav').play()
             self.hit_state = True
             self.hp -= 1
 
