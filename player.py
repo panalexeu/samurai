@@ -166,18 +166,35 @@ class Player(sprite.Sprite):
 
             # Handling bamboo stick render
             bamboo_stick_color = (153, 229, 80)
+
             if self.facing_right:
-                pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] + 6, self.rect.center[1] - 3),
-                                 (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 3))
-                # Handling attack box
-                self.attack_box.reset_position(
-                    (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 2))
+                stick_x_factor = 1
             else:
-                pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] - 6, self.rect.center[1] - 3),
-                                 (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 3))
-                # Handling attack box
-                self.attack_box.reset_position(
-                    (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 2))
+                stick_x_factor = -1
+
+            if self.player_gravity < 0:
+                stick_y_factor = 1
+                stick_hb_y_factor = 2
+            else:
+                stick_y_factor = -3
+                stick_hb_y_factor = -2
+
+            # Drawing stick
+            pygame.draw.line(
+                self.surface,
+                bamboo_stick_color,
+                (self.rect.center[0] + 6 * stick_x_factor, self.rect.center[1] + stick_y_factor),
+                (self.rect.center[0] + 6 * stick_x_factor + self.bamboo_stick_length * stick_x_factor,
+                 self.rect.center[1] + stick_y_factor)
+            )
+
+            # Handling attack box
+            self.attack_box.reset_position(
+                (self.rect.center[0] + 6 * stick_x_factor + self.bamboo_stick_length * stick_x_factor,
+                 self.rect.center[1] + stick_hb_y_factor)
+            )
+
+            self.attack_box_sprite.draw(self.surface)
 
         if self.jump_state:
             self.jump_tick -= 1
