@@ -320,11 +320,19 @@ class Level:
     def player_vertical_collisions(self):
         for sprite_ in self.collision_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                if self.player.direction.y < 0 or self.player.player_gravity < 0 and self.player.rect.y > sprite_.rect.y:
-                    self.player.rect.top = sprite_.rect.bottom
-                    self.player.direction.y = 0
-                elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
-                    self.player.rect.bottom = sprite_.rect.top
+                if self.player.player_gravity > 0:
+                    if self.player.direction.y < 0 and self.player.rect.y > sprite_.rect.y:
+                        self.player.rect.top = sprite_.rect.bottom
+                        self.player.direction.y = 0
+                    elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
+                        self.player.rect.bottom = sprite_.rect.top
+                # Vertical collisions for negative gravity
+                elif self.player.player_gravity < 0:
+                    if self.player.direction.y == 0 and self.player.rect.y > sprite_.rect.y:
+                        self.player.rect.top = sprite_.rect.bottom
+                    elif self.player.direction.y < 0 and self.player.rect.y < sprite_.rect.y:
+                        self.player.rect.bottom = sprite_.rect.top
+                        self.player.direction.y = 0
 
     def player_horizontal_collisions(self):
         for sprite_ in self.collision_sprites:
