@@ -1,7 +1,6 @@
 import pygame
 
 import main
-import pickups
 import sprite
 import text
 import utils
@@ -77,7 +76,7 @@ class Player(sprite.Sprite):
         self.potion_tick = 0
 
         # Stats
-        self.CONST_HP = 50
+        self.CONST_HP = 3
         self.hp = self.CONST_HP
 
         self.CONST_STAMINA = 6

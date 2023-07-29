@@ -274,8 +274,15 @@ class Level:
                     self.pickups.add(pickups.Coin(pos=pos))
                 elif cell == 'g':
                     self.pickups.add(
-                        pickups.AntiGravityPotion(pos=pos, image_path='game_core/sprites/castle/antigravity_potion.png',
-                                                  player=self.player))
+                        pickups.AntiGravityPotion(pos=pos, player_obj=self.player))
+                elif cell == 'h':
+                    self.pickups.add(
+                        pickups.HpMushroom(pos=pos)
+                    )
+                elif cell == 'e':
+                    self.pickups.add(
+                        pickups.StaminaMushroom(pos=pos)
+                    )
 
                 # Enemies
                 elif cell == 'Y':
@@ -313,7 +320,7 @@ class Level:
     def player_vertical_collisions(self):
         for sprite_ in self.collision_sprites:
             if sprite_.rect.colliderect(self.player.rect):
-                if (self.player.direction.y < 0 or self.player.player_gravity < 0) and self.player.rect.y > sprite_.rect.y:
+                if self.player.direction.y < 0 or self.player.player_gravity < 0 and self.player.rect.y > sprite_.rect.y:
                     self.player.rect.top = sprite_.rect.bottom
                     self.player.direction.y = 0
                 elif self.player.direction.y == 0 and self.player.rect.y < sprite_.rect.y:
@@ -357,6 +364,12 @@ class Level:
                 self.player.coins += 1
             elif isinstance(collision_obj, pickups.AntiGravityPotion):
                 self.player.potion = collision_obj
+            elif isinstance(collision_obj, pickups.HpMushroom):
+                self.player.CONST_HP += 1
+                self.player.hp = self.player.CONST_HP
+            elif isinstance(collision_obj, pickups.StaminaMushroom):
+                self.player.CONST_STAMINA += 1
+                self.player.stamina = self.player.CONST_STAMINA
 
     def destroyable_sprites_collision(self):
         pygame.sprite.spritecollide(self.player, self.destroyable_sprites, dokill=True)
@@ -479,8 +492,8 @@ class Level:
         self.check_player_death()
 
         # Inventory and bars
-        self.hp_bar.update(self.player.hp)
-        self.stamina_bar.update(self.player.stamina)
+        self.hp_bar.update(points=self.player.hp, points_const=self.player.CONST_HP)
+        self.stamina_bar.update(points=self.player.stamina, points_const=self.player.CONST_STAMINA)
         self.potion_bar.update(self.player.potion)
 
         # debug console

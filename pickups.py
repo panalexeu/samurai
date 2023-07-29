@@ -5,7 +5,6 @@ import sprite
 
 
 class Coin(sprite.AnimatedSprite):
-
     def __init__(self, pos):
         super().__init__(
             pos,
@@ -16,14 +15,30 @@ class Coin(sprite.AnimatedSprite):
         )
 
 
-class AntiGravityPotion(sprite.Sprite):
-    def __init__(self, pos, image_path, player: player.Player):
+class HpMushroom(sprite.Sprite):
+    def __init__(self, pos):
         super().__init__(
-            pos,
-            image_path=image_path
+            pos=pos,
+            image_path='game_core/sprites/castle/hp_mushroom.png'
         )
 
-        self.player = player
+
+class StaminaMushroom(sprite.Sprite):
+    def __init__(self, pos):
+        super().__init__(
+            pos=pos,
+            image_path='game_core/sprites/castle/stamina_mushroom.png'
+        )
+
+
+class AntiGravityPotion(sprite.Sprite):
+    def __init__(self, pos, player_obj: player.Player):
+        super().__init__(
+            pos,
+            image_path='game_core/sprites/castle/antigravity_potion.png'
+        )
+
+        self.player = player_obj
         self.duration = 150
 
     def apply_effect(self):
