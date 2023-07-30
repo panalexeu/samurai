@@ -74,6 +74,9 @@ class ShootingSkeleton(Enemy):
     # noinspection PyTypeChecker
     def shoot(self):
         if not self.shooting_state:
+            # Playing a sound
+            pygame.mixer.Sound('game_core/sounds/shoot.wav').play()
+
             # Spawning a projectile
             self.level_projectiles.add(
                 projectile.Projectile(

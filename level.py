@@ -378,11 +378,14 @@ class Level:
                 self.player.coins += 1
                 pygame.mixer.Sound('game_core/sounds/coin_pickup.wav').play()
             elif isinstance(collision_obj, pickups.AntiGravityPotion):
+                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
                 self.player.potion = collision_obj
             elif isinstance(collision_obj, pickups.HpMushroom):
+                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
                 self.player.CONST_HP += 1
                 self.player.hp = self.player.CONST_HP
             elif isinstance(collision_obj, pickups.StaminaMushroom):
+                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
                 self.player.CONST_STAMINA += 1
                 self.player.stamina = self.player.CONST_STAMINA
 
@@ -392,6 +395,7 @@ class Level:
     def traps_collision(self):
         for sprite_ in self.traps_sprites:
             if sprite_.rect.colliderect(self.player.rect):
+                pygame.mixer.Sound('game_core/sounds/explosion.wav').play()
                 self.player_death()
 
     # TODO Implement hints system
@@ -400,9 +404,10 @@ class Level:
             if sprite_.rect.colliderect(self.player.rect):
                 # Bonfires handling
                 if isinstance(sprite_, bonfire.Bonfire):
-                    sprite_.set_action()
-                    sprite_.save_position()
-                    self.player.reset_stats()
+                    if sprite_.state == 'inaction':
+                        sprite_.set_action()
+                        sprite_.save_position()
+                        self.player.reset_stats()
 
     def entrance_collision(self):
         for direction_key in self.level_entrances:
@@ -449,6 +454,9 @@ class Level:
             pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
 
     def player_death(self):
+        pygame.mixer.Sound('game_core/sounds/game_over.mp3').play()
+        pygame.time.delay(5000)
+
         self.clear_level_sprites()
         self.player.reset_stats()
         self.player.reset_position(main.saves_database.get_player_position())

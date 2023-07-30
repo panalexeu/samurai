@@ -124,7 +124,7 @@ class Player(sprite.Sprite):
         # Potion usage
         if keys[pygame.K_c]:
             if self.potion and not self.potion_state:
-                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
+                pygame.mixer.Sound('game_core/sounds/potion.wav').play()
                 self.potion_state = True
 
     def player_movement(self):
@@ -197,7 +197,7 @@ class Player(sprite.Sprite):
                  self.rect.center[1] + stick_hb_y_factor)
             )
 
-            self.attack_box_sprite.draw(self.surface)
+            # self.attack_box_sprite.draw(self.surface)
 
         if self.jump_state:
             self.jump_tick -= 1

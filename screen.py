@@ -8,7 +8,6 @@ import main
 class MainScreen:
     def __init__(self):
         pygame.init()
-        pygame.mixer.music.set_volume(0.5)
         pygame.display.set_caption('Samurai')
         pygame.display.set_icon(pygame.image.load('game_core/sprites/player/jump/samurai_jump.png'))
         self.display = pygame.display.set_mode(constants.SCREEN_SIZE)
