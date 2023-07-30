@@ -120,6 +120,31 @@ LEVEL_MAPS = {
         '44141111144114wwwwwwwwww4',
     ),
 
+    'SEWER_EAST': (
+        '1111111111111111111111111',
+        '1111111111111111111111111',
+        '1110341131144111311134444',
+        '1000c000c0000000c000c0004',
+        '1000c>C0c0000000c000c0001',
+        '1000344130000000c000c0001',
+        '1000c000c0000000cCCCc0001',
+        '4000c000c0000000341430001',
+        '4000c0C>c0000000000000004',
+        '4000314430000000000000004',
+        '1000000000000000000000004',
+        '1000000000000000000000001',
+        '4000000000000000000000001',
+        '4000000000000000000000004',
+        '1000000000000000000000004',
+        '1000000000000000000000001',
+        '4000000000000000000000001',
+        '1000000000000000000000l04',
+        '100000000l00000l000000001',
+        'E00000000000000000000000W',
+        '111000t001YCCC0400t000111',
+        '111wwwwww4111441wwwwww111'
+    ),
+
     'YARD': (
         '11111111111111111',
         '11kkk3kkkk3kkkk11',
@@ -195,12 +220,13 @@ LEVEL_ADJACENCY_MAP = {
     'BRIDGE': {'east': 'PRISON_CAGE', 'west': 'SEWER_ENTER'},
     'SEWER_ENTER': {'east': 'BRIDGE', 'north': 'YARD', 'south': 'SEWER_BOTTOM'},
     'SEWER_BOTTOM': {'north': 'SEWER_ENTER', 'east': 'SEWER_CENTER'},
-    'SEWER_CENTER': {'west': 'SEWER_BOTTOM', 'east': 'BOSS_ENTER'},
+    'SEWER_CENTER': {'west': 'SEWER_BOTTOM', 'east': 'SEWER_EAST'},
+    'SEWER_EAST': {'west': 'SEWER_CENTER', 'east': 'BOSS_ENTER'},
     'YARD': {'south': 'SEWER_ENTER', 'east': 'TRAPS_UP_WEST'},
     'BOSS': {'east': 'TRAPS_UP_EAST', 'west': 'TRAPS_UP_WEST'},
     'TRAPS_UP_EAST': {'south': 'TOWER', 'west': 'BOSS'},
     'TRAPS_UP_WEST': {'east': 'BOSS', 'west': 'YARD'},
-    'BOSS_ENTER': {'west': 'SEWER_CENTER', 'north': 'TRAPS_UP_EAST'},
+    'BOSS_ENTER': {'west': 'SEWER_EAST', 'north': 'TRAPS_UP_EAST'},
     'SECRET_ROOM1': {'south': 'TRAPS_EAST'}
 }
 
@@ -212,6 +238,7 @@ LEVEL_COLOR = {
     'SEWER_ENTER': (0, 0, 0),
     'SEWER_BOTTOM': (0, 0, 0),
     'SEWER_CENTER': (0, 0, 0),
+    'SEWER_EAST': (0, 0, 0),
     'YARD': (95, 205, 228),
     'TRAPS_UP_WEST': (95, 205, 228),
     'TRAPS_UP_EAST': (0, 0, 0),
