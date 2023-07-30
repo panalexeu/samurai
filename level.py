@@ -455,7 +455,7 @@ class Level:
 
     def player_death(self):
         pygame.mixer.Sound('game_core/sounds/game_over.mp3').play()
-        pygame.time.delay(5000)
+        pygame.time.delay(4000)
 
         self.clear_level_sprites()
         self.player.reset_stats()
