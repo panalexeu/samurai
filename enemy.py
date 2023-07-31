@@ -2,6 +2,7 @@ import random
 
 import pygame
 
+import player
 import projectile
 import sprite
 
@@ -15,9 +16,9 @@ class Enemy(sprite.AnimatedSprite):
 
         # Stats
         self.speed = speed
+        self.souls = 5
 
     def movement(self):
-        self.state = 'run'
         self.rect.x += self.direction.x * self.speed
         self.rect.y += self.direction.y * self.speed
 
@@ -36,10 +37,141 @@ class Enemy(sprite.AnimatedSprite):
         self.animate()
 
 
-class ShootingSkeleton(Enemy):
-    def __init__(self, pos, level_projectiles: pygame.sprite.Group):
-        self.pos = pos
+class DeadSamuraiBoss(Enemy):
 
+    def __init__(self, pos, player_obj: player.Player, level_projectiles: pygame.sprite.Group):
+        super().__init__(
+            pos=pos,
+            direction=pygame.math.Vector2(0, 0),
+            speed=1,
+            image_path='game_core/sprites/enemies/skeleton_boss/idle/skeleton_boss_idle.png',
+            anim_path='game_core/sprites/enemies/skeleton_boss',
+            anim_states={'idle': [], 'run': [], 'stun': []},
+            anim_speed=0.1
+        )
+
+        self.player = player_obj
+        self.level_projectiles = level_projectiles
+
+        self.souls = 200
+
+        self.HP_CONST = 6
+        self.hp = self.HP_CONST
+
+        self.CONST_SPEED = 1
+        self.speed = self.CONST_SPEED
+
+        self.stage_1 = True
+        self.stage_2 = False
+
+        self.hit_state = False
+        self.CONST_HIT_TICK = 30
+        self.hit_tick = self.CONST_HIT_TICK
+
+        self.stun_state = False
+        self.CONST_STUN_TICK = 100
+        self.stun_tick = self.CONST_STUN_TICK
+
+        self.charge_state = False
+        self.CONST_CHARGE_TICK = 50
+        self.charge_tick = self.CONST_CHARGE_TICK
+
+        self.check_state = False
+
+        self.shooting_state = False
+        self.CONST_SHOOTING_TICK = 50
+        self.shooting_tick = self.CONST_SHOOTING_TICK
+
+    def stage_update(self):
+        if self.stage_1:
+            if self.player.rect.y >= self.rect.y:
+                if not self.charge_state and not self.stun_state:
+                    self.charge_state = True
+                    self.check_state = False
+
+            if self.player.potion_state:
+                self.check_state = True
+
+    def check_player_pos(self):
+        if self.player.rect.x < self.rect.x:
+            self.direction.x = -1
+        else:
+            self.direction.x = 1
+
+    def anim_states_update(self):
+        if self.speed > 0:
+            self.state = 'run'
+        else:
+            self.state = 'stun'
+
+    def states_update(self):
+        if self.hit_state:
+            self.hit_tick -= 1
+            if self.hit_tick == 0:
+                self.hit_state = False
+                self.hit_tick = self.CONST_HIT_TICK
+
+        if self.charge_state:
+            self.charge_tick -= 1
+            if self.charge_tick == 0:
+                self.charge_state = False
+                self.charge_tick = self.CONST_CHARGE_TICK
+                self.check_player_pos()
+                self.speed = 4
+
+        if self.check_state:
+            self.speed = 1
+            self.shoot()
+
+        if self.stun_state:
+            self.state = 'stun'
+            self.stun_tick -= 1
+            self.speed = 0
+            if self.stun_tick == 0:
+                self.stun_state = False
+                self.stun_tick = self.CONST_STUN_TICK
+
+    def shoot(self):
+        if not self.shooting_state:
+            # Playing a sound
+            pygame.mixer.Sound('game_core/sounds/shoot.wav').play()
+
+            # Spawning a projectile
+            self.level_projectiles.add(
+                projectile.Projectile(
+                    pos=self.rect.center,
+                    image_path='game_core/sprites/projectiles/shuriken/shuriken.png',
+                    speed=2,
+                    direction=pygame.math.Vector2(0, -1)
+                )
+            )
+
+            self.shooting_state = True
+
+        if self.shooting_state:
+            self.shooting_tick -= 1
+            if self.shooting_tick == 0:
+                self.shooting_tick = self.CONST_SHOOTING_TICK
+                self.shooting_state = False
+
+    def hit(self):
+        if not self.hit_state:
+            self.hp -= 1
+            self.hit_state = True
+
+    def animate(self):
+        super().animate()
+        self.image = self.get_image()
+
+    def update(self):
+        super().update()
+        self.stage_update()
+        self.states_update()
+        self.anim_states_update()
+
+
+class ShootingSkeleton(Enemy):
+    def __init__(self, pos, level_projectiles: pygame.sprite.Group, rotation=True):
         super().__init__(
             pos=pos,
             direction=pygame.math.Vector2(0, 0),
@@ -50,7 +182,18 @@ class ShootingSkeleton(Enemy):
             anim_speed=0.1
         )
 
+        self.souls = 15
+
+        self.pos = pos
         self.level_projectiles = level_projectiles
+        self.rotation = rotation
+
+        if self.rotation:
+            self.proj_pos = (pos[0] + 8, pos[1] - 1)
+            self.proj_direction = pygame.math.Vector2(1, 0)
+        else:
+            self.proj_pos = (pos[0], pos[1] - 1)
+            self.proj_direction = pygame.math.Vector2(-1, 0)
 
         self.shooting_state = False
         self.CONST_SHOOTING_TICK = 50
@@ -58,18 +201,25 @@ class ShootingSkeleton(Enemy):
 
     def animate(self):
         super().animate()
-        self.image = self.get_image()
+        image = self.get_image()
+        if self.rotation:
+            self.image = pygame.transform.flip(image, flip_x=True, flip_y=False)
+        else:
+            self.image = image
 
     # noinspection PyTypeChecker
     def shoot(self):
         if not self.shooting_state:
+            # Playing a sound
+            pygame.mixer.Sound('game_core/sounds/shoot.wav').play()
+
             # Spawning a projectile
             self.level_projectiles.add(
                 projectile.Projectile(
-                    pos=(self.pos[0], self.pos[1] - 1),
+                    pos=self.proj_pos,
                     image_path='game_core/sprites/projectiles/skeleton_projectile/skeleton_projectile.png',
                     speed=1,
-                    direction=pygame.math.Vector2(-1, 0)
+                    direction=self.proj_direction
                 )
             )
 
@@ -84,6 +234,7 @@ class ShootingSkeleton(Enemy):
     def update(self):
         super().update()
         self.shoot()
+        self.state = 'run'
 
 
 class Yokai(Enemy):
@@ -98,6 +249,8 @@ class Yokai(Enemy):
             anim_speed=0.1
         )
 
+        self.souls = 10
+
     def animate(self):
         super().animate()
         image = self.get_image()
@@ -106,6 +259,10 @@ class Yokai(Enemy):
             self.image = image
         else:
             self.image = pygame.transform.flip(image, flip_x=True, flip_y=False)
+
+    def update(self):
+        super().update()
+        self.state = 'run'
 
 
 class Spider(Enemy):
@@ -128,3 +285,7 @@ class Spider(Enemy):
             self.image = image
         elif self.direction.y == 1:
             self.image = pygame.transform.flip(image, flip_x=False, flip_y=True)
+
+    def update(self):
+        super().update()
+        self.state = 'run'

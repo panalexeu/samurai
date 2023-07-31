@@ -1,3 +1,5 @@
+import pygame.mixer_music
+
 import main
 import sprite
 
@@ -17,10 +19,17 @@ class Bonfire(sprite.AnimatedSprite):
         self.state = 'inaction'
 
     def set_action(self):
+        pygame.mixer.Sound('game_core/sounds/bonfire.wav').play()
         self.state = 'action'
 
-    def set_inaction(self):
-        self.state = 'inaction'
-
-    def save_position(self):
+    def save(self, player):
         main.saves_database.set_player_position(self.rect.x, self.rect.y, self.level_key)
+
+        if player.potion:
+            potion_state = 1
+        else:
+            potion_state = 0
+
+        main.saves_database.set_stats(potion_state, player.souls, player.hp, player.stamina)
+        player.upgrade_calculation()
+        player.reset_stats()

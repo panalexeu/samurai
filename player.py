@@ -2,11 +2,11 @@ import pygame
 
 import main
 import sprite
-import text
 import utils
 
 
 class Player(sprite.Sprite):
+    # noinspection PyTypeChecker
     def __init__(self, surface):
         super().__init__(
             pos=main.saves_database.get_player_position(),
@@ -14,6 +14,19 @@ class Player(sprite.Sprite):
         )
 
         self.surface = surface
+
+        # Stats and items
+        self.upgrade_factor = 50
+
+        self.CONST_HP = main.saves_database.get_hp()
+        self.hp = self.CONST_HP
+
+        self.CONST_STAMINA = main.saves_database.get_stamina()
+        self.stamina = self.CONST_STAMINA
+
+        self.souls = main.saves_database.get_souls()
+
+        self.potion = None
 
         # Animations and animation state
         self.frame_index = 0
@@ -50,31 +63,25 @@ class Player(sprite.Sprite):
         self.jump_tick = self.CONST_JUMP_TICK
 
         self.bamboo_stick_attack_state = False
-        self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
+        self.CONST_BAMBOO_STICK_ATTACK_TICK = 20
         self.bamboo_stick_attack_tick = 0
+        self.CONST_BAMBOO_STICK_LENGTH = 8
+        self.bamboo_stick_length = 0
 
         self.stun_state = False
         self.CONST_STUN_TICK = 100
         self.stun_tick = self.CONST_STUN_TICK
 
-        # Stats
-        self.CONST_BAMBOO_STICK_LENGTH = 8
-        self.bamboo_stick_length = 0
+        self.hit_state = False
+        self.CONST_HIT_TICK = 30
+        self.hit_tick = self.CONST_HIT_TICK
 
-        # Items
-        self.coins = 0
+        self.regen_state = False
+        self.CONST_REGEN_TICK = 150
+        self.regen_tick = self.CONST_REGEN_TICK
 
-        # TODO CURRENTLY JUST FOR DEBUGGING
-        # Inventory handling
-        self.coins_text = text.Text(
-            font='Minecraft',
-            size=8,
-            color=(240, 240, 240),
-            pos=(0, 0),
-        )
-
-        # Other
-        self.prev_bonfire = None
+        self.potion_state = False
+        self.potion_tick = 0
 
     def get_input(self):
         # Pressed keys handling
@@ -91,13 +98,23 @@ class Player(sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             if not self.jump_state:
+                pygame.mixer.Sound('game_core/sounds/jump.wav').play()
                 self.direction.y = -1
                 self.jump_state = True
         else:
             self.direction.y = 0
 
+        # Bamboo stick attack
         if keys[pygame.K_e]:
+            pygame.mixer.Sound('game_core/sounds/hit.wav').play()
             self.bamboo_stick_attack_state = True
+            self.direction.x, self.direction.y = 0, 0
+
+        # Potion usage
+        if keys[pygame.K_c]:
+            if self.potion and not self.potion_state:
+                pygame.mixer.Sound('game_core/sounds/potion.wav').play()
+                self.potion_state = True
 
     def player_movement(self):
         self.rect.x += self.direction.x * self.player_speed
@@ -126,73 +143,121 @@ class Player(sprite.Sprite):
 
     def states_update(self):
         if self.bamboo_stick_attack_state:
-            self.lash_attack_handle()
+            self.state = 'bamboo_stick_attack'
+            self.immovable_state = True
+
+            if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
+                self.bamboo_stick_length += 1  # bamboo stick deploying speed
+
+            self.bamboo_stick_attack_tick += 1
+            if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
+                self.immovable_state = False
+                self.bamboo_stick_attack_state = False
+                self.bamboo_stick_attack_tick = 0
+                self.bamboo_stick_length = 0
+
+            # Handling bamboo stick render
+            bamboo_stick_color = (153, 229, 80)
+
+            if self.facing_right:
+                stick_x_factor = 1
+            else:
+                stick_x_factor = -1
+
+            if self.player_gravity < 0:
+                stick_y_factor = 1
+                stick_hb_y_factor = 2
+            else:
+                stick_y_factor = -3
+                stick_hb_y_factor = -2
+
+            # Drawing stick
+            pygame.draw.line(
+                self.surface,
+                bamboo_stick_color,
+                (self.rect.center[0] + 6 * stick_x_factor, self.rect.center[1] + stick_y_factor),
+                (self.rect.center[0] + 6 * stick_x_factor + self.bamboo_stick_length * stick_x_factor,
+                 self.rect.center[1] + stick_y_factor)
+            )
+
+            # Handling attack box
+            self.attack_box.reset_position(
+                (self.rect.center[0] + 6 * stick_x_factor + self.bamboo_stick_length * stick_x_factor,
+                 self.rect.center[1] + stick_hb_y_factor)
+            )
+
+            # self.attack_box_sprite.draw(self.surface) for debugging
 
         if self.jump_state:
-            self.jump_handle()
+            self.jump_tick -= 1
+            if self.jump_tick == self.CONST_JUMP_TICK - 15:
+                self.hit_stamina()
+                self.direction.y = 0
+            elif self.jump_tick == 0:
+                self.jump_state = False
+                self.jump_tick = self.CONST_JUMP_TICK
 
         if self.stun_state:
-            self.stun_handle()
+            self.state = 'stun'
+            self.stun_tick -= 1
+            self.immovable_state = True
+            if self.stun_tick == 0:
+                self.immovable_state = False
+                self.stun_state = False
+                self.stun_tick = self.CONST_STUN_TICK
 
-        if self.immovable_state:
-            self.immovable_state_handle()
-
-    def lash_attack_handle(self):
-        self.state = 'bamboo_stick_attack'
-        self.immovable_state = True
-
-        if self.bamboo_stick_length < self.CONST_BAMBOO_STICK_LENGTH:
-            self.bamboo_stick_length += 2  # bamboo stick deploying speed
-
-        self.bamboo_stick_attack_tick += 1
-        if self.bamboo_stick_attack_tick >= self.CONST_BAMBOO_STICK_ATTACK_TICK:
-            self.immovable_state = False
-            self.bamboo_stick_attack_state = False
-            self.bamboo_stick_attack_tick = 0
-            self.bamboo_stick_length = 0
-
-        # Handling bamboo stick render
-        bamboo_stick_color = (153, 229, 80)
-        if self.facing_right:
-            pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] + 6, self.rect.center[1] - 3),
-                             (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 3))
-            # Handling attack box
-            self.attack_box.reset_position(
-                (self.rect.center[0] + 6 + self.bamboo_stick_length, self.rect.center[1] - 2))
-        else:
-            pygame.draw.line(self.surface, bamboo_stick_color, (self.rect.center[0] - 6, self.rect.center[1] - 3),
-                             (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 3))
-            # Handling attack box
-            self.attack_box.reset_position(
-                (self.rect.center[0] - 6 - self.bamboo_stick_length, self.rect.center[1] - 2))
-
-        # Debug
-        # self.attack_box_sprite.draw(self.surface)
-
-    def jump_handle(self):
-        self.jump_tick -= 1
-        if self.jump_tick == self.CONST_JUMP_TICK - 15:
-            self.direction.y = 0
-        elif self.jump_tick == 0:
-            self.jump_state = False
-            self.jump_tick = self.CONST_JUMP_TICK
-
-    def stun_handle(self):
-        self.state = 'stun'
-        self.stun_tick -= 1
-        self.immovable_state = True
-        if self.stun_tick == 0:
-            self.immovable_state = False
-            self.stun_state = False
-            self.stun_tick = self.CONST_STUN_TICK
-
-    def immovable_state_handle(self):
         if self.immovable_state:
             self.direction.x = 0
             self.direction.y = 0
 
-    def print_items(self, surface):
-        self.coins_text.display_text(text=f'coins: {self.coins}', surface=surface)
+        if self.hit_state:
+            self.hit_tick -= 1
+            if self.hit_tick == 0:
+                self.hit_state = False
+                self.hit_tick = self.CONST_HIT_TICK
+
+        if self.regen_state:
+            self.regen_tick -= 1
+            if self.regen_tick == 0:
+                self.stamina += 1
+                self.regen_tick = self.CONST_REGEN_TICK
+                if self.stamina >= self.CONST_STAMINA:
+                    self.stamina = self.CONST_STAMINA
+                    self.regen_state = False
+
+        if self.potion_state:
+            self.potion_tick += 1
+            self.potion.apply_effect()
+            if self.potion_tick == self.potion.duration:
+                self.potion.stop_effect()
+                self.potion_tick = 0
+                self.potion_state = False
+
+    def reset_stats(self):
+        self.hp = self.CONST_HP
+        self.stamina = self.CONST_STAMINA
+
+    def hit(self):
+        if not self.hit_state:
+            pygame.mixer.Sound('game_core/sounds/explosion.wav').play()
+            self.hit_state = True
+            self.hp -= 1
+
+    def hit_stamina(self):
+        self.regen_state = True
+        self.stamina -= 1
+
+    def check_low_stamina(self):
+        if self.stamina <= 0:
+            self.stun_state = True
+
+    def upgrade_calculation(self):
+        remainder = self.souls % self.upgrade_factor
+        upgrade_count = (self.souls - remainder) // self.upgrade_factor
+
+        self.CONST_HP += upgrade_count
+        self.CONST_STAMINA += upgrade_count
+        self.souls = remainder
 
     def update(self):
         if not self.immovable_state:
@@ -200,4 +265,5 @@ class Player(sprite.Sprite):
         self.animate()
         self.player_movement()
         self.anim_states_update()
+        self.check_low_stamina()
         self.states_update()
