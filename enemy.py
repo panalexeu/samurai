@@ -15,6 +15,7 @@ class Enemy(sprite.AnimatedSprite):
 
         # Stats
         self.speed = speed
+        self.souls = 5
 
     def movement(self):
         self.state = 'run'
@@ -47,6 +48,8 @@ class ShootingSkeleton(Enemy):
             anim_states={'idle': [], 'run': []},
             anim_speed=0.1
         )
+
+        self.souls = 15
 
         self.pos = pos
         self.level_projectiles = level_projectiles
@@ -111,6 +114,8 @@ class Yokai(Enemy):
             anim_states={'idle': [], 'run': []},
             anim_speed=0.1
         )
+
+        self.souls = 10
 
     def animate(self):
         super().animate()

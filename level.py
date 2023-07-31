@@ -61,6 +61,7 @@ class Level:
         self.hp_bar = bar.HpBar((14, 2), self.surface)
         self.stamina_bar = bar.StaminaBar((14, 8), self.surface)
         self.potion_bar = bar.PotionBar((2, 2), self.surface)
+        self.souls_bar = bar.SoulsBar((0, 22), self.surface)
 
         # Level map init
         self.level_map_init()
@@ -377,7 +378,7 @@ class Level:
             collision_obj = collision[0]
             if isinstance(collision_obj, pickups.Coin):
                 pygame.mixer.Sound('game_core/sounds/coin_pickup.wav').play()
-                self.player.coins += 1
+                self.player.souls += 1
             elif isinstance(collision_obj, pickups.HpMushroom):
                 pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
                 self.player.hp = self.player.CONST_HP
@@ -452,12 +453,15 @@ class Level:
 
     def player_hit_collision(self):
         if self.player.bamboo_stick_attack_state:
-            if pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True):
+            collision = pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
+            if len(collision) > 0:
                 pygame.mixer.Sound('game_core/sounds/enemy_died.wav').play()
+                self.player.souls += collision[0].souls
 
     def player_death(self):
         self.clear_level_sprites()
         self.player.reset_stats()
+        self.player.souls = 0
         self.player.reset_position(main.saves_database.get_player_position())
         self.level_map_key = main.saves_database.get_player_level_position()
         self.level_background = level_system.LEVEL_COLOR[self.level_map_key]
@@ -521,6 +525,7 @@ class Level:
         self.hp_bar.update(points=self.player.hp, points_const=self.player.CONST_HP)
         self.stamina_bar.update(points=self.player.stamina, points_const=self.player.CONST_STAMINA)
         self.potion_bar.update(self.player.potion)
+        self.souls_bar.update(self.player.souls)
 
         # # debug console
         # self.level_console.update()

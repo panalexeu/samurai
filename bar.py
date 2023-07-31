@@ -1,6 +1,8 @@
 import pygame
 
 import pickups
+import sprite
+import text
 
 
 class PotionBar:
@@ -13,6 +15,36 @@ class PotionBar:
         self.surface.blit(self.image, self.pos)
         if potion:
             self.surface.blit(potion.image, (self.pos[0] + 1, self.pos[1] + 1))
+
+
+class SoulsBar:
+    def __init__(self, pos, surface):
+        self.pos = pos
+        self.surface = surface
+
+        self.souls_sprite = sprite.AnimatedSprite(
+                pos=pos,
+                image_path='game_core/sprites/animated_sprites/souls/idle/souls1.png',
+                anim_path='game_core/sprites/animated_sprites/souls',
+                anim_states={'idle': []},
+                anim_speed=0.1
+            )
+
+        self.souls_group = pygame.sprite.GroupSingle(
+            self.souls_sprite
+        )
+
+        self.text = text.Text(
+            'Minecraft',
+            size=8,
+            color='white',
+            pos=(self.pos[0] + 8, self.pos[1] - 8)
+        )
+
+    def update(self, souls):
+        self.souls_sprite.animate()
+        self.souls_group.draw(self.surface)
+        self.text.display_text(str(souls), self.surface)
 
 
 class Bar:

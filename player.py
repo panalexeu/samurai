@@ -2,7 +2,6 @@ import pygame
 
 import main
 import sprite
-import text
 import utils
 
 
@@ -84,16 +83,8 @@ class Player(sprite.Sprite):
 
         # Items
         self.coins = 0
+        self.souls = 0
         self.potion = None
-
-        # TODO CURRENTLY JUST FOR DEBUGGING
-        # Inventory handling
-        self.coins_text = text.Text(
-            font='Minecraft',
-            size=8,
-            color=(240, 240, 240),
-            pos=(0, 0),
-        )
 
     def get_input(self):
         # Pressed keys handling
@@ -262,9 +253,6 @@ class Player(sprite.Sprite):
     def check_low_stamina(self):
         if self.stamina <= 0:
             self.stun_state = True
-
-    def print_items(self, surface):
-        self.coins_text.display_text(text=f'coins: {self.coins}', surface=surface)
 
     def update(self):
         if not self.immovable_state:
