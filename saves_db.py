@@ -15,7 +15,10 @@ class SavesDatabase:
 
     PLAYER_ITEMS_TABLE = """
         CREATE TABLE items(
-            potion INTEGER
+            potion INTEGER,
+            souls INTEGER,
+            hp INTEGER,
+            stamina INTEGER
         )
     """
 
@@ -24,8 +27,8 @@ class SavesDatabase:
     SET_PLAYER_POSITION = "UPDATE player_position SET pos_x = ?, pos_y = ?, level_key = ?"
 
     GET_PLAYER_ITEMS = "SELECT * FROM items"
-    INIT_PLAYER_ITEMS = "INSERT INTO items VALUES(0)"
-    SET_POTION = 'UPDATE items SET potion = 1'
+    INIT_PLAYER_ITEMS = "INSERT INTO items VALUES(0, 0, 3, 5)"
+    SET_STATS = 'UPDATE items SET potion = ?, souls = ?, hp = ?, stamina = ?'
 
     def get_player_position(self):
         position = self.run_query(query=self.GET_PLAYER_POSITION, fetch=True)[0]
@@ -40,8 +43,17 @@ class SavesDatabase:
     def get_potion(self):
         return self.run_query(query=self.GET_PLAYER_ITEMS, fetch=True)[0][0]
 
-    def set_potion(self):
-        return self.run_query(query=self.SET_POTION, commit=True)
+    def get_souls(self):
+        return self.run_query(query=self.GET_PLAYER_ITEMS, fetch=True)[0][1]
+
+    def get_hp(self):
+        return self.run_query(query=self.GET_PLAYER_ITEMS, fetch=True)[0][2]
+
+    def get_stamina(self):
+        return self.run_query(query=self.GET_PLAYER_ITEMS, fetch=True)[0][3]
+
+    def set_stats(self, potion, souls, hp, stamina):
+        return self.run_query(query=self.SET_STATS, args=(potion, souls, hp, stamina), commit=True)
 
     def run_query(self, query, args=None, commit=False, fetch=False):
         args = args or ()

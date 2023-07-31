@@ -30,9 +30,7 @@ class SoulsBar:
                 anim_speed=0.1
             )
 
-        self.souls_group = pygame.sprite.GroupSingle(
-            self.souls_sprite
-        )
+        self.souls_group = pygame.sprite.GroupSingle(self.souls_sprite)
 
         self.text = text.Text(
             'Minecraft',

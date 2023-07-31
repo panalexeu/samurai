@@ -301,6 +301,8 @@ class Level:
                     self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles))
                 elif cell == '<':
                     self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles, rotation=False))
+                elif cell == '*':
+                    self.enemies.add(enemy.SkeletonBoss(pos=pos))
 
                 # Interactive sprites
                 elif cell == 'B':
@@ -387,7 +389,6 @@ class Level:
                 self.player.stamina = self.player.CONST_STAMINA
             elif isinstance(collision_obj, pickups.AntiGravityPotion):
                 pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
-                main.saves_database.set_potion()
                 self.player.potion = collision_obj
 
     def destroyable_sprites_collision(self):
@@ -407,8 +408,8 @@ class Level:
                 if isinstance(sprite_, bonfire.Bonfire):
                     if sprite_.state == 'inaction':
                         sprite_.set_action()
-                        sprite_.save_position()
                         self.player.reset_stats()
+                        sprite_.save(self.player)
 
     def entrance_collision(self):
         for direction_key in self.level_entrances:

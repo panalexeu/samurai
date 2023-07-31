@@ -15,6 +15,19 @@ class Player(sprite.Sprite):
 
         self.surface = surface
 
+        # Stats and items
+        self.upgrade_factor = 50
+
+        self.CONST_HP = main.saves_database.get_hp()
+        self.hp = self.CONST_HP
+
+        self.CONST_STAMINA = main.saves_database.get_stamina()
+        self.stamina = self.CONST_STAMINA
+
+        self.souls = main.saves_database.get_souls()
+
+        self.potion = None
+
         # Animations and animation state
         self.frame_index = 0
         self.animation_speed = 0.1
@@ -45,19 +58,16 @@ class Player(sprite.Sprite):
         # Ticks and action states
         self.immovable_state = False
 
-        # Jump
         self.jump_state = False
         self.CONST_JUMP_TICK = 40
         self.jump_tick = self.CONST_JUMP_TICK
 
-        # Bamboo stick attack
         self.bamboo_stick_attack_state = False
-        self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
+        self.CONST_BAMBOO_STICK_ATTACK_TICK = 20
         self.bamboo_stick_attack_tick = 0
         self.CONST_BAMBOO_STICK_LENGTH = 6
         self.bamboo_stick_length = 0
 
-        # Stun
         self.stun_state = False
         self.CONST_STUN_TICK = 100
         self.stun_tick = self.CONST_STUN_TICK
@@ -70,21 +80,8 @@ class Player(sprite.Sprite):
         self.CONST_REGEN_TICK = 150
         self.regen_tick = self.CONST_REGEN_TICK
 
-        # Potions
         self.potion_state = False
         self.potion_tick = 0
-
-        # Stats
-        self.CONST_HP = 3
-        self.hp = self.CONST_HP
-
-        self.CONST_STAMINA = 6
-        self.stamina = self.CONST_STAMINA
-
-        # Items
-        self.coins = 0
-        self.souls = 0
-        self.potion = None
 
     def get_input(self):
         # Pressed keys handling
@@ -253,6 +250,14 @@ class Player(sprite.Sprite):
     def check_low_stamina(self):
         if self.stamina <= 0:
             self.stun_state = True
+
+    def upgrade_calculation(self):
+        remainder = self.souls % self.upgrade_factor
+        upgrade_count = (self.souls - remainder) // self.upgrade_factor
+
+        self.CONST_HP += upgrade_count
+        self.CONST_STAMINA += upgrade_count
+        self.souls = remainder
 
     def update(self):
         if not self.immovable_state:

@@ -37,6 +37,20 @@ class Enemy(sprite.AnimatedSprite):
         self.animate()
 
 
+class SkeletonBoss(Enemy):
+
+    def __init__(self, pos):
+        super().__init__(
+            pos=pos,
+            direction=pygame.math.Vector2(-1, 0),
+            speed=1,
+            image_path='game_core/sprites/enemies/skeleton_boss/idle/skeleton_boss_idle.png',
+            anim_path='game_core/sprites/enemies/skeleton_boss',
+            anim_states={'idle': [], 'run': []},
+            anim_speed=0.1
+        )
+
+
 class ShootingSkeleton(Enemy):
     def __init__(self, pos, level_projectiles: pygame.sprite.Group, rotation=True):
         super().__init__(
