@@ -81,3 +81,22 @@ class StaminaBar(Bar):
             empty_bar_img=pygame.image.load('game_core/sprites/icons/empty_stamina_bar.png'),
             shift=3
         )
+
+
+class BossHpBar(HpBar):
+    def __init__(self, surface, boss_name):
+        self.pos = (65, 20)
+
+        super().__init__(self.pos, surface)
+
+        self.boss_name = boss_name
+        self.text = text.Text(
+            'Minecraft',
+            8,
+            'white',
+            pos=(self.pos[0], self.pos[1] - 8)
+        )
+
+    def update(self, points, points_const):
+        super().update(points, points_const)
+        self.text.display_text(self.boss_name, self.surface)

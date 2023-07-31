@@ -3,7 +3,6 @@ import pygame
 import bar
 import bonfire
 import constants
-import debug_console
 import enemy
 import level_system
 import main
@@ -57,6 +56,10 @@ class Level:
         self.player_sprite = pygame.sprite.GroupSingle()
         self.player_sprite.add(self.player)
 
+        # Boss init
+        self.boss = None
+        self.boss_bar = None
+
         # Inventory and bars init
         self.hp_bar = bar.HpBar((14, 2), self.surface)
         self.stamina_bar = bar.StaminaBar((14, 8), self.surface)
@@ -72,6 +75,9 @@ class Level:
     # noinspection PyTypeChecker
     def level_map_init(self, prev_direction=None):
         level_map = level_system.LEVEL_MAPS[self.level_map_key]
+
+        self.boss = None
+        self.boss_bar = None
 
         max_x_len = max([len(row) for row in level_map])  # calculates the longest x row in the level map
 
@@ -302,7 +308,9 @@ class Level:
                 elif cell == '<':
                     self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles, rotation=False))
                 elif cell == '*':
-                    self.enemies.add(enemy.SkeletonBoss(pos=pos))
+                    self.boss = enemy.DeadSamuraiBoss(pos=pos, player_obj=self.player, level_projectiles=self.projectiles)
+                    self.boss_bar = bar.BossHpBar(self.surface, 'Dead Samurai')
+                    self.enemies.add(self.boss)
 
                 # Interactive sprites
                 elif cell == 'B':
@@ -372,6 +380,17 @@ class Level:
                             enemy_.direction.y = 1
                         else:
                             enemy_.direction.y = -1
+                    elif isinstance(enemy_, enemy.DeadSamuraiBoss):
+                        if enemy_.direction.x == 1:
+                            if enemy_.charge_state:
+                                enemy_.stun_state = True
+                            enemy_.direction.x = -1
+                            enemy_.rect.x = enemy_.rect.x - 1 # without this collisions break i guess this is connected with the sprite size
+                        else:
+                            if enemy_.charge_state:
+                                enemy_.stun_state = True
+                            enemy_.direction.x = 1
+                            enemy_.rect.x = enemy_.rect.x + 1  # without this collisions break i guess this is connected with the sprite size
 
     def pickups_collisions(self):
         collision = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided (coin, item, position)
@@ -454,10 +473,19 @@ class Level:
 
     def player_hit_collision(self):
         if self.player.bamboo_stick_attack_state:
-            collision = pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
-            if len(collision) > 0:
-                pygame.mixer.Sound('game_core/sounds/enemy_died.wav').play()
-                self.player.souls += collision[0].souls
+            for enemy_ in self.enemies:
+                if self.player.attack_box.rect.colliderect(enemy_.rect):
+                    if isinstance(enemy_, enemy.DeadSamuraiBoss):
+                        enemy_.hit()
+                        if enemy_.hp < 1:
+                            pygame.mixer.Sound('game_core/sounds/enemy_died.wav').play()
+                            pygame.mixer.Sound('game_core/sounds/game_over.mp3').play()
+                            self.player.souls += enemy_.souls
+                            self.enemies.remove(enemy_)
+                    else:
+                        pygame.mixer.Sound('game_core/sounds/enemy_died.wav').play()
+                        self.player.souls += enemy_.souls
+                        self.enemies.remove(enemy_)
 
     def player_death(self):
         self.clear_level_sprites()
@@ -527,6 +555,8 @@ class Level:
         self.stamina_bar.update(points=self.player.stamina, points_const=self.player.CONST_STAMINA)
         self.potion_bar.update(self.player.potion)
         self.souls_bar.update(self.player.souls)
+        if self.boss_bar:
+            self.boss_bar.update(self.boss.hp, self.boss.HP_CONST)
 
         # # debug console
         # self.level_console.update()
