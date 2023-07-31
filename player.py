@@ -65,7 +65,7 @@ class Player(sprite.Sprite):
         self.bamboo_stick_attack_state = False
         self.CONST_BAMBOO_STICK_ATTACK_TICK = 20
         self.bamboo_stick_attack_tick = 0
-        self.CONST_BAMBOO_STICK_LENGTH = 6
+        self.CONST_BAMBOO_STICK_LENGTH = 8
         self.bamboo_stick_length = 0
 
         self.stun_state = False
