@@ -55,7 +55,7 @@ class Player(sprite.Sprite):
         self.bamboo_stick_attack_state = False
         self.CONST_BAMBOO_STICK_ATTACK_TICK = 30
         self.bamboo_stick_attack_tick = 0
-        self.CONST_BAMBOO_STICK_LENGTH = 8
+        self.CONST_BAMBOO_STICK_LENGTH = 6
         self.bamboo_stick_length = 0
 
         # Stun
@@ -198,7 +198,7 @@ class Player(sprite.Sprite):
                  self.rect.center[1] + stick_hb_y_factor)
             )
 
-            # self.attack_box_sprite.draw(self.surface)
+            # self.attack_box_sprite.draw(self.surface) for debugging
 
         if self.jump_state:
             self.jump_tick -= 1

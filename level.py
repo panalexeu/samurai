@@ -66,7 +66,7 @@ class Level:
         self.level_map_init()
 
         # Console init
-        self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
+        # self.level_console = debug_console.DebugConsole(self.surface, self.player, self.collision_sprites)
 
     # noinspection PyTypeChecker
     def level_map_init(self, prev_direction=None):
@@ -522,5 +522,5 @@ class Level:
         self.stamina_bar.update(points=self.player.stamina, points_const=self.player.CONST_STAMINA)
         self.potion_bar.update(self.player.potion)
 
-        # debug console
-        self.level_console.update()
+        # # debug console
+        # self.level_console.update()
