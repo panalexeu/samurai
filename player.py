@@ -120,6 +120,7 @@ class Player(sprite.Sprite):
         if keys[pygame.K_e]:
             pygame.mixer.Sound('game_core/sounds/hit.wav').play()
             self.bamboo_stick_attack_state = True
+            self.direction.x, self.direction.y = 0, 0
 
         # Potion usage
         if keys[pygame.K_c]:

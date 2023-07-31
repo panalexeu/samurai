@@ -378,18 +378,16 @@ class Level:
             if isinstance(collision_obj, pickups.Coin):
                 pygame.mixer.Sound('game_core/sounds/coin_pickup.wav').play()
                 self.player.coins += 1
+            elif isinstance(collision_obj, pickups.HpMushroom):
+                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
+                self.player.hp = self.player.CONST_HP
+            elif isinstance(collision_obj, pickups.StaminaMushroom):
+                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
+                self.player.stamina = self.player.CONST_STAMINA
             elif isinstance(collision_obj, pickups.AntiGravityPotion):
                 pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
                 main.saves_database.set_potion()
                 self.player.potion = collision_obj
-            elif isinstance(collision_obj, pickups.HpMushroom):
-                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
-                self.player.CONST_HP += 1
-                self.player.hp = self.player.CONST_HP
-            elif isinstance(collision_obj, pickups.StaminaMushroom):
-                pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
-                self.player.CONST_STAMINA += 1
-                self.player.stamina = self.player.CONST_STAMINA
 
     def destroyable_sprites_collision(self):
         pygame.sprite.spritecollide(self.player, self.destroyable_sprites, dokill=True)
@@ -415,6 +413,7 @@ class Level:
         for direction_key in self.level_entrances:
             for sprite_ in self.level_entrances[direction_key]:
                 if sprite_.rect.colliderect(self.player.rect):
+                    pygame.mixer.Sound('game_core/sounds/entrance.wav').play()
                     self.level_map_key = level_system.LEVEL_ADJACENCY_MAP[self.level_map_key][direction_key]
                     self.level_background = level_system.LEVEL_COLOR[self.level_map_key]
                     self.clear_level_sprites()
@@ -453,7 +452,8 @@ class Level:
 
     def player_hit_collision(self):
         if self.player.bamboo_stick_attack_state:
-            pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
+            if pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True):
+                pygame.mixer.Sound('game_core/sounds/enemy_died.wav').play()
 
     def player_death(self):
         self.clear_level_sprites()
