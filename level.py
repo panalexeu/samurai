@@ -53,6 +53,7 @@ class Level:
 
         # Player init
         self.player = player.Player(self.surface)
+        self.init_player_items()
         self.player_sprite = pygame.sprite.GroupSingle()
         self.player_sprite.add(self.player)
 
@@ -375,10 +376,11 @@ class Level:
         if len(collision) > 0:
             collision_obj = collision[0]
             if isinstance(collision_obj, pickups.Coin):
-                self.player.coins += 1
                 pygame.mixer.Sound('game_core/sounds/coin_pickup.wav').play()
+                self.player.coins += 1
             elif isinstance(collision_obj, pickups.AntiGravityPotion):
                 pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
+                main.saves_database.set_potion()
                 self.player.potion = collision_obj
             elif isinstance(collision_obj, pickups.HpMushroom):
                 pygame.mixer.Sound('game_core/sounds/powerup.wav').play()
@@ -454,9 +456,6 @@ class Level:
             pygame.sprite.spritecollide(self.player.attack_box, self.enemies, dokill=True)
 
     def player_death(self):
-        pygame.mixer.Sound('game_core/sounds/game_over.mp3').play()
-        pygame.time.delay(4000)
-
         self.clear_level_sprites()
         self.player.reset_stats()
         self.player.reset_position(main.saves_database.get_player_position())
@@ -467,6 +466,10 @@ class Level:
     def check_player_death(self):
         if self.player.hp <= 0:
             self.player_death()
+
+    def init_player_items(self):
+        if main.saves_database.get_potion():
+            self.player.potion = pickups.AntiGravityPotion(pos=self.player.rect.bottomleft, player_obj=self.player)
 
     def update(self):
         # Background drawing
