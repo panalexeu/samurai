@@ -3,7 +3,7 @@ import os
 
 
 class SavesDatabase:
-    DB_PATH = "saves.db"
+    DB_PATH = "game_core/saves/saves.db"
 
     PLAYER_POSITION_TABLE = """
         CREATE TABLE player_position(

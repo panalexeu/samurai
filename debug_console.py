@@ -53,7 +53,10 @@ class DebugConsole:
 
     def display(self):
         self.sprites_text.display_text(f'sprites on the level:{len(self.level_sprites)}', self.surface)
-        self.player_pos_text.display_text(f'player position x:{self.player.rect.x} y:{self.player.rect.y}', self.surface)
-        self.player_directions.display_text(f'player directions x:{self.player.direction.x} y:{self.player.direction.y}', self.surface)
+        self.player_pos_text.display_text(f'player position x:{self.player.rect.x} y:{self.player.rect.y}',
+                                          self.surface)
+        self.player_directions.display_text(
+            f'player directions x:{self.player.direction.x} y:{self.player.direction.y}', self.surface)
         self.player_states.display_text(f'STATES jump state:{self.player.jump_state}', self.surface)
-        self.jump_cooldown.display_text(f'jump tick:{self.player.jump_tick} gravity:{self.player.player_gravity}', self.surface)
+        self.jump_cooldown.display_text(f'jump tick:{self.player.jump_tick} gravity:{self.player.player_gravity}',
+                                        self.surface)
