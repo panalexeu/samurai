@@ -122,7 +122,7 @@ class DeadSamuraiBoss(Enemy):
                 self.charge_tick = self.CONST_CHARGE_TICK
                 self.check_player_pos()
                 if self.second_stage:
-                    self.speed = 5
+                    self.speed = 6
                 else:
                     self.speed = 4
 
@@ -135,6 +135,7 @@ class DeadSamuraiBoss(Enemy):
             self.stun_tick -= 1
             self.speed = 0
             if self.stun_tick == 0:
+                pygame.mixer.Sound('game_core/sounds/boss_laugh.wav').play()
                 self.stun_state = False
                 self.stun_tick = self.CONST_STUN_TICK
 
