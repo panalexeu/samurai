@@ -43,9 +43,9 @@ class DeadSamuraiBoss(Enemy):
             pos=pos,
             direction=pygame.math.Vector2(0, 0),
             speed=1,
-            image_path='game_core/sprites/enemies/skeleton_boss/idle/skeleton_boss_idle.png',
-            anim_path='game_core/sprites/enemies/skeleton_boss',
-            anim_states={'idle': [], 'run': [], 'stun': []},
+            image_path='game_core/sprites/enemies/dead_samurai_boss/idle/dead_samurai_boss_idle.png',
+            anim_path='game_core/sprites/enemies/dead_samurai_boss',
+            anim_states={'idle': [], 'run': [], 'stun': [], 'charge': []},
             anim_speed=0.1
         )
 
@@ -60,8 +60,7 @@ class DeadSamuraiBoss(Enemy):
         self.CONST_SPEED = 1
         self.speed = self.CONST_SPEED
 
-        self.stage_1 = True
-        self.stage_2 = False
+        self.second_stage = False
 
         self.hit_state = False
         self.CONST_HIT_TICK = 30
@@ -81,15 +80,18 @@ class DeadSamuraiBoss(Enemy):
         self.CONST_SHOOTING_TICK = 50
         self.shooting_tick = self.CONST_SHOOTING_TICK
 
-    def stage_update(self):
-        if self.stage_1:
-            if self.player.rect.y >= self.rect.y:
-                if not self.charge_state and not self.stun_state:
-                    self.charge_state = True
-                    self.check_state = False
+    def attacks_check(self):
+        if self.player.rect.y >= self.rect.y:
+            if not self.charge_state and not self.stun_state:
+                self.charge_state = True
+                self.check_state = False
 
-            if self.player.potion_state:
-                self.check_state = True
+        if self.player.potion_state:
+            self.check_state = True
+
+    def stage_check(self):
+        if self.hp <= 3:
+            self.second_stage = True
 
     def check_player_pos(self):
         if self.player.rect.x < self.rect.x:
@@ -99,7 +101,10 @@ class DeadSamuraiBoss(Enemy):
 
     def anim_states_update(self):
         if self.speed > 0:
-            self.state = 'run'
+            if self.second_stage:
+                self.state = 'run'
+            else:
+                self.state = 'charge'
         else:
             self.state = 'stun'
 
@@ -116,7 +121,10 @@ class DeadSamuraiBoss(Enemy):
                 self.charge_state = False
                 self.charge_tick = self.CONST_CHARGE_TICK
                 self.check_player_pos()
-                self.speed = 4
+                if self.second_stage:
+                    self.speed = 5
+                else:
+                    self.speed = 4
 
         if self.check_state:
             self.speed = 1
@@ -165,8 +173,9 @@ class DeadSamuraiBoss(Enemy):
 
     def update(self):
         super().update()
-        self.stage_update()
+        self.attacks_check()
         self.states_update()
+        self.stage_check()
         self.anim_states_update()
 
 

@@ -484,6 +484,8 @@ class Level:
                             pygame.mixer.Sound('game_core/sounds/game_over.mp3').play()
                             self.player.souls += enemy_.souls
                             self.enemies.remove(enemy_)
+                            self.boss = None
+                            self.boss_bar = None
                     else:
                         pygame.mixer.Sound('game_core/sounds/enemy_died.wav').play()
                         self.player.souls += enemy_.souls
