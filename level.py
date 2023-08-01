@@ -1,7 +1,7 @@
 import pygame
 
-import bar
 import bonfire
+import bar
 import constants
 import enemy
 import level_system
@@ -306,9 +306,11 @@ class Level:
                 elif cell == '>':
                     self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles))
                 elif cell == '<':
-                    self.enemies.add(enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles, rotation=False))
+                    self.enemies.add(
+                        enemy.ShootingSkeleton(pos=pos, level_projectiles=self.projectiles, rotation=False))
                 elif cell == '*':
-                    self.boss = enemy.DeadSamuraiBoss(pos=pos, player_obj=self.player, level_projectiles=self.projectiles)
+                    self.boss = enemy.DeadSamuraiBoss(pos=pos, player_obj=self.player,
+                                                      level_projectiles=self.projectiles)
                     self.boss_bar = bar.BossHpBar(self.surface, 'Dead Samurai')
                     self.enemies.add(self.boss)
 
@@ -385,15 +387,15 @@ class Level:
                             if enemy_.charge_state:
                                 enemy_.stun_state = True
                             enemy_.direction.x = -1
-                            enemy_.rect.x = enemy_.rect.x - 1 # without this collisions break i guess this is connected with the sprite size
+                            enemy_.rect.x = enemy_.rect.x - 1  # Without this collisions break I guess this is connected with the sprite size
                         else:
                             if enemy_.charge_state:
                                 enemy_.stun_state = True
                             enemy_.direction.x = 1
-                            enemy_.rect.x = enemy_.rect.x + 1  # without this collisions break i guess this is connected with the sprite size
+                            enemy_.rect.x = enemy_.rect.x + 1  # Without this collisions break I guess this is connected with the sprite size
 
     def pickups_collisions(self):
-        collision = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)  # here is possible to check with which object u collided (coin, item, position)
+        collision = pygame.sprite.spritecollide(self.player, self.pickups, dokill=True)
 
         if len(collision) > 0:
             collision_obj = collision[0]
@@ -419,7 +421,6 @@ class Level:
                 pygame.mixer.Sound('game_core/sounds/explosion.wav').play()
                 self.player_death()
 
-    # TODO Implement hints system
     def interactive_sprites_collisions(self):
         for sprite_ in self.interactive_sprites:
             if sprite_.rect.colliderect(self.player.rect):
@@ -471,6 +472,7 @@ class Level:
         for sprite_ in self.collision_sprites:
             pygame.sprite.spritecollide(sprite_, self.projectiles, dokill=True)
 
+    # noinspection PyTypeChecker
     def player_hit_collision(self):
         if self.player.bamboo_stick_attack_state:
             for enemy_ in self.enemies:

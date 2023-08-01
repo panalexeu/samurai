@@ -18,6 +18,7 @@ class PotionBar:
 
 
 class SoulsBar:
+    # noinspection PyTypeChecker
     def __init__(self, pos, surface):
         self.pos = pos
         self.surface = surface

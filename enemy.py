@@ -38,7 +38,6 @@ class Enemy(sprite.AnimatedSprite):
 
 
 class DeadSamuraiBoss(Enemy):
-
     def __init__(self, pos, player_obj: player.Player, level_projectiles: pygame.sprite.Group):
         super().__init__(
             pos=pos,
@@ -131,6 +130,7 @@ class DeadSamuraiBoss(Enemy):
                 self.stun_state = False
                 self.stun_tick = self.CONST_STUN_TICK
 
+    # noinspection PyTypeChecker
     def shoot(self):
         if not self.shooting_state:
             # Playing a sound
