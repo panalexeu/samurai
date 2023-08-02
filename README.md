@@ -8,3 +8,4 @@ A simple and short platformer game developed with pygame library. Game combines 
 * Gravity potion, which changes gameplay;
 * Different enemies and a final boss fight.
 ## Screenshots
+![test](screenshots/prison_cage_level.png)
