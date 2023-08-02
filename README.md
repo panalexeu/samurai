@@ -6,5 +6,5 @@ A simple and short platformer game developed with pygame library. Game combines 
 * Simple saving system based on bonfires like in soulsborne games. The saving system was developed with sqlite;
 * Simple character leveling system like in soulsborne games. 
 * Gravity potion, which changes gameplay;
-* Different enemies and a final boss fight;
+* Different enemies and a final boss fight.
 ## Screenshots
