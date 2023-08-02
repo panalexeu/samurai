@@ -8,6 +8,7 @@ A simple and short platformer game developed with pygame library. Game combines 
 * Gravity potion, which changes gameplay;
 * Different enemies and a final boss fight.
 ## Screenshots
+![](game_core/sprites/player/jump/samurai_jump.png)
 ![](screenshots/prison_cage_level.png)
 ![](screenshots/sewer_enter_level.png)
 ![](screenshots/boss_fight_level.png)
