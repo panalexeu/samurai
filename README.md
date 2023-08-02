@@ -1,6 +1,6 @@
 # Samurai Game
 ## Description
-A simple and short platformer game developed with pygame library. Game combines features of metroidvania, soulsborne and mario games. All sprites for the game were drawn with aseprite.
+A simple and short platformer game developed with pygame library. Game combines features of metroidvania, soulsborne and mario games. All sprites for the game were drawn with aseprite. Youtube video [link]() with a game demonstration.
 ## Features
 * Level system like in metroidvania games;
 * Simple saving system based on bonfires like in soulsborne games. The saving system was developed with sqlite;
@@ -8,7 +8,6 @@ A simple and short platformer game developed with pygame library. Game combines 
 * Gravity potion, which changes gameplay;
 * Different enemies and a final boss fight.
 ## Screenshots
-![](game_core/sprites/player/jump/samurai_jump.png)
 ![](screenshots/prison_cage_level.png)
 ![](screenshots/sewer_enter_level.png)
 ![](screenshots/boss_fight_level.png)
